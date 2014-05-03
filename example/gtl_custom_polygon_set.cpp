@@ -115,8 +115,6 @@ namespace boost { namespace polygon {
 
     template <>
     struct polygon_mutable_traits<CPolygon> {
-      typedef int coordinate_type;
-
       //expects stl style iterators
       template <typename iT>
       static inline CPolygon& set_points(CPolygon& t, 
