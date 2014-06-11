@@ -19,13 +19,13 @@ using namespace boost::polygon;
 typedef boost::mpl::list<int> test_types;
 
 template <typename interval_type>
-bool CHECK_INTERVAL_EQUAL(const interval_type& i1, const interval_type& i2) {
+void CHECK_INTERVAL_EQUAL(const interval_type& i1, const interval_type& i2) {
   BOOST_CHECK_EQUAL(get(i1, LOW), get(i2, LOW));
   BOOST_CHECK_EQUAL(get(i1, HIGH), get(i2, HIGH));
 }
 
 template <typename rectangle_type>
-bool CHECK_RECT_EQUAL(const rectangle_type& r1, const rectangle_type& r2) {
+void CHECK_RECT_EQUAL(const rectangle_type& r1, const rectangle_type& r2) {
   CHECK_INTERVAL_EQUAL(horizontal(r1), horizontal(r2));
   CHECK_INTERVAL_EQUAL(vertical(r1), vertical(r2));
 }
