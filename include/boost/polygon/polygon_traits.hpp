@@ -971,7 +971,6 @@ namespace boost { namespace polygon{
   static area_type
   point_sequence_area(iterator_type begin_range, iterator_type end_range) {
     typedef typename std::iterator_traits<iterator_type>::value_type point_type;
-    typedef typename point_traits<point_type>::coordinate_type Unit;
     if(begin_range == end_range) return area_type(0);
     point_type first = *begin_range;
     point_type previous = first;
