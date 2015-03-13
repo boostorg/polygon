@@ -46,7 +46,13 @@ class axis_transformation {
     BEGIN_TRANSFORM = 0,
       EN = 0, EAST_NORTH = 0,
       WN = 1, WEST_NORTH = 1, FLIP_X       = 1,
-      ES = 2, EAST_SOUTH = 2, FLIP_Y       = 2,
+      //  'ES = 2,'  fails on Solaris because   'ES'  name clashes with  '#define ES 2' macro  defined inside  /usr/include/sys/regset.h
+      //   which is picked up by stlport  library when for example, #include<map>  is  present in user code.
+      #if defined (__SUNPRO_CC) && defined (__SunOS)
+          E_S = 2, EAST_SOUTH = 2, FLIP_Y = 2,
+      #else
+          ES = 2, EAST_SOUTH = 2, FLIP_Y = 2,
+      #endif
       WS = 3, WEST_SOUTH = 3, FLIP_XY      = 3,
       NE = 4, NORTH_EAST = 4, SWAP_XY      = 4,
       SE = 5, SOUTH_EAST = 5, ROTATE_LEFT  = 5,
