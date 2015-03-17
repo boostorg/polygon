@@ -44,14 +44,27 @@ class axis_transformation {
   enum ATR {
     NULL_TRANSFORM = 0,
     BEGIN_TRANSFORM = 0,
-      EN = 0, EAST_NORTH = 0,
-      WN = 1, WEST_NORTH = 1, FLIP_X       = 1,
-      ES = 2, EAST_SOUTH = 2, FLIP_Y       = 2,
-      WS = 3, WEST_SOUTH = 3, FLIP_XY      = 3,
-      NE = 4, NORTH_EAST = 4, SWAP_XY      = 4,
-      SE = 5, SOUTH_EAST = 5, ROTATE_LEFT  = 5,
-      NW = 6, NORTH_WEST = 6, ROTATE_RIGHT = 6,
-      SW = 7, SOUTH_WEST = 7, FLIP_SWAP_XY = 7,
+   //  'ES = 2,'  fails on Solaris because   'ES'  name clashes with  '#define ES 2' macro  defined inside  /usr/include/sys/regset.h
+   //   which is picked up by stlport  library when for example, #include<map>  is  present in user code.
+    #if defined (__SUNPRO_CC) && defined (__SunOS)
+         E_N = 0, EAST_NORTH = 0,
+         W_N = 1, WEST_NORTH = 1, FLIP_X       = 1,
+         E_S = 2, EAST_SOUTH = 2, FLIP_Y       = 2,
+         W_S = 3, WEST_SOUTH = 3, FLIP_XY      = 3,
+         N_E = 4, NORTH_EAST = 4, SWAP_XY      = 4,
+         S_E = 5, SOUTH_EAST = 5, ROTATE_LEFT  = 5,
+         N_W = 6, NORTH_WEST = 6, ROTATE_RIGHT = 6,
+         S_W = 7, SOUTH_WEST = 7, FLIP_SWAP_XY = 7,
+    #else
+         EN = 0, EAST_NORTH = 0,
+         WN = 1, WEST_NORTH = 1, FLIP_X       = 1,
+         ES = 2, EAST_SOUTH = 2, FLIP_Y       = 2,
+         WS = 3, WEST_SOUTH = 3, FLIP_XY      = 3,
+         NE = 4, NORTH_EAST = 4, SWAP_XY      = 4,
+         SE = 5, SOUTH_EAST = 5, ROTATE_LEFT  = 5,
+         NW = 6, NORTH_WEST = 6, ROTATE_RIGHT = 6,
+         SW = 7, SOUTH_WEST = 7, FLIP_SWAP_XY = 7,
+    #endif
     END_TRANSFORM = 7
   };
 
