@@ -42,6 +42,16 @@ namespace polygon {
 class axis_transformation {
  public:
   enum ATR {
+#ifdef BOOST_POLYGON_ENABLE_DEPRECATED
+    EN = 0,
+    WN = 1,
+    ES = 2,
+    WS = 3,
+    NE = 4,
+    SE = 5,
+    NW = 6,
+    SW = 7,
+#endif
     NULL_TRANSFORM = 0,
     BEGIN_TRANSFORM = 0,
     EAST_NORTH = 0,
