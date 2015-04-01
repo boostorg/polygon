@@ -15,6 +15,7 @@
 
 #include "boost/polygon/polygon.hpp"
 using namespace boost::polygon;
+using namespace boost::polygon::operators;
 
 typedef boost::mpl::list<int> test_types;
 
@@ -83,4 +84,28 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(polygon_set_data_test2, T, test_types) {
     get_trapezoids(traps, pset, HORIZONTAL);
 
     BOOST_CHECK_EQUAL(4, traps.size());
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(polygon_set_data_test3, T, test_types) {
+    typedef point_data<T> point_type;
+    typedef polygon_data<T> polygon_type;
+    typedef polygon_with_holes_data<T> polygon_with_holes_type;
+    typedef polygon_set_data<T> polygon_set_type;
+
+    std::vector<point_type> data;
+    data.push_back(point_type(0,0));
+    data.push_back(point_type(6,0));
+    data.push_back(point_type(6,4));
+    data.push_back(point_type(4,6));
+    data.push_back(point_type(0,6));
+    data.push_back(point_type(0,0));
+    data.push_back(point_type(4,4));
+    data.push_back(point_type(5,4));
+
+    polygon_type polygon(data.begin(), data.end());
+    polygon_set_type pset;
+    pset += polygon;
+
+    BOOST_CHECK_EQUAL(32.0, area(polygon));
+    BOOST_CHECK_EQUAL(32.0, area(polygon));
 }
