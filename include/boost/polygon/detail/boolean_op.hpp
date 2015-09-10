@@ -381,7 +381,7 @@ namespace boolean_op {
   }
 
   template <typename Unit>
-  inline void applyUnaryXOr(std::vector<std::pair<Unit, std::pair<Unit, int> > >& input) {
+  inline void applyUnaryXOr(std::vector<std::pair<Unit, std::pair<Unit, int> > >& ) {
     BooleanOp<UnaryCount, Unit> booleanXOr;
 
   }

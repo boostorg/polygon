@@ -506,7 +506,7 @@ namespace boost { namespace polygon{
       inline bool operator==(const Vertex45CompactT& vertex) const {
         return pt == vertex.pt && count == vertex.count; }
       inline bool operator!=(const Vertex45CompactT& vertex) const { return !((*this) == vertex); }
-      inline bool operator==(const std::pair<Point, Point>& vertex) const { return false; }
+      inline bool operator==(const std::pair<Point, Point>& ) const { return false; }
       inline bool operator!=(const std::pair<Point, Point>& vertex) const { return !((*this) == vertex); }
       inline bool operator<(const Vertex45CompactT& vertex) const {
         if(pt.x() < vertex.pt.x()) return true;
@@ -2153,7 +2153,7 @@ namespace boost { namespace polygon{
     inline iterator end() const { return p_->getTail()->end(); }
     inline std::size_t size() const { return 0; }
     template<class iT>
-    inline PolyLine45HoleData& set(iT inputBegin, iT inputEnd) {
+    inline PolyLine45HoleData& set(iT , iT ) {
       return *this;
     }
   private:
@@ -2222,14 +2222,14 @@ namespace boost { namespace polygon{
     inline std::size_t size_holes() const { return 0; }
     inline std::size_t size() const { return 0; }
     template<class iT>
-    inline PolyLine45PolygonData& set(iT inputBegin, iT inputEnd) {
+    inline PolyLine45PolygonData& set(iT , iT ) {
       return *this;
     }
 
     // initialize a polygon from x,y values, it is assumed that the first is an x
     // and that the input is a well behaved polygon
     template<class iT>
-    inline PolyLine45PolygonData& set_holes(iT inputBegin, iT inputEnd) {
+    inline PolyLine45PolygonData& set_holes(iT , iT ) {
       return *this;
     }
   private:

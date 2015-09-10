@@ -185,7 +185,7 @@ namespace boost { namespace polygon{
     template <typename iT>
     static inline T& set_compact(T& t, iT input_begin, iT input_end) {
       typedef iterator_points_to_compact<iT, typename polygon_traits<T>::point_type> iTp;
-      t.set_points(iTp(polygon_traits<T>::begin_points(t)), iTp(polygon_traits<T>::end_points(t)));
+      t.set_points(iTp(input_begin), iTp(input_end));
       return t;
     }
   };
@@ -1567,7 +1567,7 @@ namespace boost { namespace polygon{
     typedef const hole_type* iterator_holes_type;
     static inline iterator_holes_type begin_holes(const hole_type& t) { return &t; }
     static inline iterator_holes_type end_holes(const hole_type& t) { return &t; }
-    static inline std::size_t size_holes(const hole_type& t) { return 0; }
+    static inline std::size_t size_holes(const hole_type& ) { return 0; }
   };
 
   template <typename T>

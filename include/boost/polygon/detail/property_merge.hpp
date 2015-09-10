@@ -509,7 +509,7 @@ private:
   }
 
   template <typename T, typename T2>
-  inline void writeGraph(coordinate_type x, T& graph, edge_property_vector& output, T2& scanline) {
+  inline void writeGraph(coordinate_type , T& graph, edge_property_vector& output, T2& scanline) {
     if(output.empty()) return;
     edge_property* previousEdgeP = &(output[0]);
     bool firstIteration = true;

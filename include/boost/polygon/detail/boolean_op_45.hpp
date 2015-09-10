@@ -272,12 +272,12 @@ namespace boost { namespace polygon{
       inline Vertex45T(const Vertex45T& vertex) : pt(vertex.pt), rise(vertex.rise), count(vertex.count) {}
       inline Vertex45T& operator=(const Vertex45T& vertex){
         pt = vertex.pt; rise = vertex.rise; count = vertex.count; return *this; }
-      inline Vertex45T(const std::pair<Point, Point>& vertex) : pt(), rise(), count() {}
-      inline Vertex45T& operator=(const std::pair<Point, Point>& vertex){ return *this; }
+      inline Vertex45T(const std::pair<Point, Point>& ) : pt(), rise(), count() {}
+      inline Vertex45T& operator=(const std::pair<Point, Point>& ){ return *this; }
       inline bool operator==(const Vertex45T& vertex) const {
         return pt == vertex.pt && rise == vertex.rise && count == vertex.count; }
       inline bool operator!=(const Vertex45T& vertex) const { return !((*this) == vertex); }
-      inline bool operator==(const std::pair<Point, Point>& vertex) const { return false; }
+      inline bool operator==(const std::pair<Point, Point>& ) const { return false; }
       inline bool operator!=(const std::pair<Point, Point>& vertex) const { return !((*this) == vertex); }
       inline bool operator<(const Vertex45T& vertex) const {
         if(pt.x() < vertex.pt.x()) return true;
