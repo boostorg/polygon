@@ -617,11 +617,11 @@ namespace polygon_formation {
     }
     inline ActiveTail<Unit>* yield() { return p_; }
     template<class iT>
-    inline PolyLineHoleData& set(iT inputBegin, iT inputEnd) {
+    inline PolyLineHoleData& set(iT , iT ) {
       return *this;
     }
     template<class iT>
-    inline PolyLineHoleData& set_compact(iT inputBegin, iT inputEnd) {
+    inline PolyLineHoleData& set_compact(iT , iT ) {
       return *this;
     }
    
@@ -677,18 +677,18 @@ namespace polygon_formation {
     inline std::size_t size_holes() const { return 0; }
     inline std::size_t size() const { return 0; }
     template<class iT>
-    inline PolyLinePolygonWithHolesData& set(iT inputBegin, iT inputEnd) {
+    inline PolyLinePolygonWithHolesData& set(iT , iT ) {
       return *this;
     }
     template<class iT>
-    inline PolyLinePolygonWithHolesData& set_compact(iT inputBegin, iT inputEnd) {
+    inline PolyLinePolygonWithHolesData& set_compact(iT , iT ) {
       return *this;
     }
    
     // initialize a polygon from x,y values, it is assumed that the first is an x
     // and that the input is a well behaved polygon
     template<class iT>
-    inline PolyLinePolygonWithHolesData& set_holes(iT inputBegin, iT inputEnd) {
+    inline PolyLinePolygonWithHolesData& set_holes(iT , iT ) {
       return *this;
     }
   };

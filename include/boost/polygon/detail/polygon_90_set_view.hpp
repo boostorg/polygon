@@ -200,11 +200,11 @@ namespace boost { namespace polygon{
     return polygon_set.orient(); }
   template <typename ltype, typename rtype, typename op_type>
   bool polygon_90_set_traits<polygon_90_set_view<ltype, rtype, op_type> >::
-  clean(const polygon_90_set_view<ltype, rtype, op_type>& polygon_set) {
+  clean(const polygon_90_set_view<ltype, rtype, op_type>& ) {
     return true; }
   template <typename ltype, typename rtype, typename op_type>
   bool polygon_90_set_traits<polygon_90_set_view<ltype, rtype, op_type> >::
-  sorted(const polygon_90_set_view<ltype, rtype, op_type>& polygon_set) {
+  sorted(const polygon_90_set_view<ltype, rtype, op_type>& ) {
     return true; }
 
   template <typename value_type, typename arg_type>

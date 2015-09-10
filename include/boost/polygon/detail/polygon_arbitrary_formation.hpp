@@ -338,7 +338,7 @@ namespace boost { namespace polygon{
     };
 
     template <typename unsigned_product_type>
-    static inline void unsigned_mod(unsigned_product_type& result, int& result_sign, unsigned_product_type a, int a_sign, unsigned_product_type b, int b_sign) {
+    static inline void unsigned_mod(unsigned_product_type& result, int& result_sign, unsigned_product_type a, int a_sign, unsigned_product_type b, int ) {
       result = a % b;
       result_sign = a_sign;
     }
@@ -739,12 +739,12 @@ namespace boost { namespace polygon{
       inline vertex_half_edge(const vertex_half_edge& vertex) : pt(vertex.pt), other_pt(vertex.other_pt), count(vertex.count) {}
       inline vertex_half_edge& operator=(const vertex_half_edge& vertex){
         pt = vertex.pt; other_pt = vertex.other_pt; count = vertex.count; return *this; }
-      inline vertex_half_edge(const std::pair<Point, Point>& vertex) : pt(), other_pt(), count() {}
-      inline vertex_half_edge& operator=(const std::pair<Point, Point>& vertex){ return *this; }
+      inline vertex_half_edge(const std::pair<Point, Point>& ) : pt(), other_pt(), count() {}
+      inline vertex_half_edge& operator=(const std::pair<Point, Point>& ){ return *this; }
       inline bool operator==(const vertex_half_edge& vertex) const {
         return pt == vertex.pt && other_pt == vertex.other_pt && count == vertex.count; }
       inline bool operator!=(const vertex_half_edge& vertex) const { return !((*this) == vertex); }
-      inline bool operator==(const std::pair<Point, Point>& vertex) const { return false; }
+      inline bool operator==(const std::pair<Point, Point>& ) const { return false; }
       inline bool operator!=(const std::pair<Point, Point>& vertex) const { return !((*this) == vertex); }
       inline bool operator<(const vertex_half_edge& vertex) const {
         if(pt.get(HORIZONTAL) < vertex.pt.get(HORIZONTAL)) return true;
@@ -1284,11 +1284,11 @@ namespace boost { namespace polygon{
       inline vertex_arbitrary_compact& operator=(const vertex_arbitrary_compact& vertex){
         pt = vertex.pt; count = vertex.count; return *this; }
       //inline vertex_arbitrary_compact(const std::pair<Point, Point>& vertex) {}
-      inline vertex_arbitrary_compact& operator=(const std::pair<Point, Point>& vertex){ return *this; }
+      inline vertex_arbitrary_compact& operator=(const std::pair<Point, Point>& ){ return *this; }
       inline bool operator==(const vertex_arbitrary_compact& vertex) const {
         return pt == vertex.pt && count == vertex.count; }
       inline bool operator!=(const vertex_arbitrary_compact& vertex) const { return !((*this) == vertex); }
-      inline bool operator==(const std::pair<Point, Point>& vertex) const { return false; }
+      inline bool operator==(const std::pair<Point, Point>& ) const { return false; }
       inline bool operator!=(const std::pair<Point, Point>& vertex) const { return !((*this) == vertex); }
       inline bool operator<(const vertex_arbitrary_compact& vertex) const {
         if(pt.get(HORIZONTAL) < vertex.pt.get(HORIZONTAL)) return true;
@@ -2144,12 +2144,12 @@ namespace boost { namespace polygon{
     //inline compact_iterator_type end_compact() const { return compact_iterator_type(end()); }
     inline std::size_t size() const { return 0; }
     template<class iT>
-    inline poly_line_arbitrary_hole_data& set(iT inputBegin, iT inputEnd) {
+    inline poly_line_arbitrary_hole_data& set(iT , iT ) {
       //assert this is not called
       return *this;
     }
     template<class iT>
-    inline poly_line_arbitrary_hole_data& set_compact(iT inputBegin, iT inputEnd) {
+    inline poly_line_arbitrary_hole_data& set_compact(iT , iT ) {
       //assert this is not called
       return *this;
     }
@@ -2220,15 +2220,15 @@ namespace boost { namespace polygon{
     inline std::size_t size_holes() const { return 0; }
     inline std::size_t size() const { return 0; }
     template<class iT>
-    inline poly_line_arbitrary_polygon_data& set(iT inputBegin, iT inputEnd) {
+    inline poly_line_arbitrary_polygon_data& set(iT , iT ) {
       return *this;
     }
     template<class iT>
-    inline poly_line_arbitrary_polygon_data& set_compact(iT inputBegin, iT inputEnd) {
+    inline poly_line_arbitrary_polygon_data& set_compact(iT , iT ) {
       return *this;
     }
     template<class iT>
-    inline poly_line_arbitrary_polygon_data& set_holes(iT inputBegin, iT inputEnd) {
+    inline poly_line_arbitrary_polygon_data& set_holes(iT , iT ) {
       return *this;
     }
   };
