@@ -358,8 +358,8 @@ void random_test()
       point_vec_small.clear();
       point_vec_large.clear();
       for (int j = 0; j < num_points[k]; j++) {
-        T x = gen() % mod_koef[k] - mod_koef[k] / 2;
-        T y = gen() % mod_koef[k] - mod_koef[k] / 2;
+        int x = gen() % mod_koef[k] - mod_koef[k] / 2;
+        int y = gen() % mod_koef[k] - mod_koef[k] / 2;
         point_vec_small.push_back(point_data<int>(x, y));
         point_vec_large.push_back(point_data<int>(koef * x, koef * y));
       }
@@ -577,7 +577,7 @@ void segment_random_test1()
     test_output.clear();
     segments.clear();
     for (int j = 0; j < num_segments; j++) {
-      T x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+      int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
       while (x1 == x2 && y1 == y2) {
         x1 = (gen() % 100) - 50;
         y1 = (gen() % 100) - 50;
@@ -615,26 +615,26 @@ void segment_random_test2()
       segments_small.clear();
       segments_large.clear();
       for (int j = 0; j < num_segments[k]; j++) {
-        T x1 = (gen() % mod_koef1[k]) - mod_koef1[k] / 2;
-        T y1 = (gen() % mod_koef1[k]) - mod_koef1[k] / 2;
-        T dx = 0, dy = 0;
+        int x1 = (gen() % mod_koef1[k]) - mod_koef1[k] / 2;
+        int y1 = (gen() % mod_koef1[k]) - mod_koef1[k] / 2;
+        int dx = 0, dy = 0;
         while (dx == 0 && dy == 0) {
           dx = (gen() % mod_koef2[k]) - mod_koef2[k] / 2;
           dy = (gen() % mod_koef2[k]) - mod_koef2[k] / 2;
         }
-        T x2 = x1 + dx;
-        T y2 = y1 + dy;
+        int x2 = x1 + dx;
+        int y2 = y1 + dy;
         point_data<int> point1_small(x1, y1);
         point_data<int> point2_small(x2, y2);
         segments_small.push_back(segment_data<int>(point1_small, point2_small));
       }
       voronoi_test_helper::clean_segment_set(segments_small);
-      for (typename std::vector< segment_data<int> >::iterator it = segments_small.begin();
+      for (std::vector< segment_data<int> >::iterator it = segments_small.begin();
            it != segments_small.end(); ++it) {
-        T x1 = it->low().x() * koef;
-        T y1 = it->low().y() * koef;
-        T x2 = it->high().x() * koef;
-        T y2 = it->high().y() * koef;
+        int x1 = it->low().x() * koef;
+        int y1 = it->low().y() * koef;
+        int x2 = it->high().x() * koef;
+        int y2 = it->high().y() * koef;
         point_data<int> point1_large(x1, y1);
         point_data<int> point2_large(x2, y2);
         segments_large.push_back(segment_data<int>(point1_large, point2_large));
