@@ -24,7 +24,7 @@ matrix:
   include:
     - os: linux
       compiler: g++
-      env: TOOLSET=gcc COMPILER=g++ CXXSTD=03,11
+      env: TOOLSET=gcc COMPILER=g++ CXXSTD=03,11 VARIANT=debug,release
 
     - os: linux
       compiler: g++-4.4
@@ -119,7 +119,7 @@ matrix:
 
     - os: linux
       compiler: clang++
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z VARIANT=debug,release
 
     - os: linux
       compiler: clang++-3.5
@@ -200,7 +200,7 @@ matrix:
 
     - os: linux
       compiler: clang++-libc++
-      env: TOOLSET=clang COMPILER=clang++-libc++ CXXSTD=03,11,14,1z
+      env: TOOLSET=clang COMPILER=clang++-libc++ CXXSTD=03,11,14,1z VARIANT=debug,release
       addons:
         apt:
           packages:
@@ -208,7 +208,7 @@ matrix:
 
     - os: osx
       compiler: clang++
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z VARIANT=debug,release
 
 install:
   - BOOST_BRANCH=develop && [ "$TRAVIS_BRANCH" == "master" ] && BOOST_BRANCH=master || true
@@ -227,7 +227,7 @@ install:
 script:
   - |-
     echo "using $TOOLSET : : $COMPILER ;" > ~/user-config.jam
-  - ./b2 -j 3 libs/polygon/test toolset=$TOOLSET cxxstd=$CXXSTD
+  - ./b2 -j 3 libs/polygon/test toolset=$TOOLSET cxxstd=$CXXSTD ${VARIANT:+variant=$VARIANT}
 
 notifications:
   email:
