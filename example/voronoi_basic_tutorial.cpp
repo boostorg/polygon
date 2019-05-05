@@ -165,26 +165,31 @@ int main() {
     for (voronoi_diagram<double>::const_cell_iterator it = vd.cells().begin();
          it != vd.cells().end(); ++it) {
       if (it->contains_point()) {
-        std::size_t index = it->source_index();
-        Point p = points[index];
-        printf("Cell #%ud contains a point: (%d, %d).\n",
-               cell_index, x(p), y(p));
+        if (it->source_category() ==
+            boost::polygon::SOURCE_CATEGORY_SINGLE_POINT) {
+          std::size_t index = it->source_index();
+          Point p = points[index];
+          printf("Cell #%u contains a point: (%d, %d).\n",
+                 cell_index, x(p), y(p));
+        } else if (it->source_category() ==
+                   boost::polygon::SOURCE_CATEGORY_SEGMENT_START_POINT) {
+          std::size_t index = it->source_index() - points.size();
+          Point p0 = low(segments[index]);
+          printf("Cell #%u contains segment start point: (%d, %d).\n",
+                 cell_index, x(p0), y(p0));
+        } else if (it->source_category() ==
+                   boost::polygon::SOURCE_CATEGORY_SEGMENT_END_POINT) {
+          std::size_t index = it->source_index() - points.size();
+          Point p1 = high(segments[index]);
+          printf("Cell #%u contains segment end point: (%d, %d).\n",
+                 cell_index, x(p1), y(p1));
+        }
       } else {
         std::size_t index = it->source_index() - points.size();
         Point p0 = low(segments[index]);
         Point p1 = high(segments[index]);
-        if (it->source_category() ==
-            boost::polygon::SOURCE_CATEGORY_SEGMENT_START_POINT) {
-          printf("Cell #%ud contains segment start point: (%d, %d).\n",
-                 cell_index, x(p0), y(p0));
-        } else if (it->source_category() ==
-                   boost::polygon::SOURCE_CATEGORY_SEGMENT_END_POINT) {
-          printf("Cell #%ud contains segment end point: (%d, %d).\n",
-                 cell_index, x(p0), y(p0));
-        } else {
-          printf("Cell #%ud contains a segment: ((%d, %d), (%d, %d)). \n",
-                 cell_index, x(p0), y(p0), x(p1), y(p1));
-        }
+        printf("Cell #%u contains a segment: ((%d, %d), (%d, %d)). \n",
+               cell_index, x(p0), y(p0), x(p1), y(p1));
       }
       ++cell_index;
     }
