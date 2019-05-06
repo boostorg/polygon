@@ -250,34 +250,38 @@ traverses over the all Voronoi cells, fetches input geometry
 corresponding to the Voronoi cell and prints coordinates of the input
 site.<br>
 <br>
-<span style="font-family: Courier New,Courier,monospace;">unsigned int cell_index = 0;</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">for (voronoi_diagram&lt;double&gt;::const_cell_iterator it = vd.cells().begin();</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp; it != vd.cells().end(); ++it) {</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp; if (it-&gt;contains_point()) {</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; std::size_t index = it-&gt;source_index();</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; Point p = points[index];</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; printf("Cell #%ud contains a point: (%d, %d).\n",</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cell_index, x(p), y(p));</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp; } else {</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; std::size_t index = it-&gt;source_index() - points.size();</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; Point p0 = low(segments[index]);</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; Point p1 = high(segments[index]);</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if (it-&gt;source_category() ==</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; boost::polygon::SOURCE_CATEGORY_SEGMENT_START_POINT) {</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("Cell #%ud contains segment start point: (%d, %d).\n",</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cell_index, x(p0), y(p0));</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } else if (it-&gt;source_category() ==</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-boost::polygon::SOURCE_CATEGORY_SEGMENT_END_POINT) {</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("Cell #%ud contains segment end point: (%d, %d).\n",</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cell_index, x(p0), y(p0));</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } else {</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("Cell #%ud contains a segment: ((%d, %d), (%d, %d)). \n",</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cell_index, x(p0), y(p0), x(p1), y(p1));</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
-<span style="font-family: Courier New,Courier,monospace;">&nbsp; ++cell_index;</span><br style="font-family: Courier New,Courier,monospace;">
-}<br>
+<span style="font-family: Courier New,Courier,monospace;">unsigned int cell_index = 0;<br>
+for (voronoi_diagram&lt;double&gt;::const_cell_iterator it = vd.cells().begin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp; it != vd.cells().end(); ++it) {<br>
+&nbsp; if (it-&gt;contains_point()) {<br>
+&nbsp;&nbsp;&nbsp; if (it-&gt;source_category() ==<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; boost::polygon::SOURCE_CATEGORY_SINGLE_POINT) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; std::size_t index = it-&gt;source_index();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Point p = points[index];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("Cell #%u contains a point: (%d, %d).\n",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cell_index, x(p), y(p));<br>
+&nbsp;&nbsp;&nbsp; } else if (it-&gt;source_category() ==<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; boost::polygon::SOURCE_CATEGORY_SEGMENT_START_POINT) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; std::size_t index = it-&gt;source_index() - points.size();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Point p0 = low(segments[index]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("Cell #%u contains segment start point: (%d, %d).\n",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cell_index, x(p0), y(p0));<br>
+&nbsp;&nbsp;&nbsp; } else if (it-&gt;source_category() ==<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; boost::polygon::SOURCE_CATEGORY_SEGMENT_END_POINT) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; std::size_t index = it-&gt;source_index() - points.size();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Point p1 = high(segments[index]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("Cell #%u contains segment end point: (%d, %d).\n",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cell_index, x(p1), y(p1));<br>
+&nbsp;&nbsp;&nbsp; }<br>
+&nbsp; } else {<br>
+&nbsp;&nbsp;&nbsp; std::size_t index = it-&gt;source_index() - points.size();<br>
+&nbsp;&nbsp;&nbsp; Point p0 = low(segments[index]);<br>
+&nbsp;&nbsp;&nbsp; Point p1 = high(segments[index]);<br>
+&nbsp;&nbsp;&nbsp; printf("Cell #%u contains a segment: ((%d, %d), (%d, %d)). \n",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cell_index, x(p0), y(p0), x(p1), y(p1));<br>
+&nbsp; }<br>
+&nbsp; ++cell_index;<br>
+}</span><br>
 <h2>Voronoi Diagram Rendering<br>
 </h2>
 
