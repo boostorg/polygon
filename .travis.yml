@@ -5,6 +5,8 @@ language: cpp
 
 sudo: false
 
+dist: trusty
+
 python: "2.7"
 
 branches:
@@ -97,7 +99,6 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      dist: trusty
       compiler: g++-7
       env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=03,11,14,17
       addons:
@@ -109,7 +110,7 @@ matrix:
 
     - os: linux
       compiler: g++-8
-      env: TOOLSET=gcc COMPILER=g++-8 CXXSTD=03,11,14,17
+      env: TOOLSET=gcc COMPILER=g++-8 CXXSTD=03,11,14,17,2a
       addons:
         apt:
           packages:
@@ -118,8 +119,34 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
+      compiler: g++-9
+      env: TOOLSET=gcc COMPILER=g++-9 CXXSTD=03,11,14,17,2a
+      addons:
+        apt:
+          packages:
+            - g++-9
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - os: linux
       compiler: clang++
       env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z VARIANT=debug,release
+
+    - os: linux
+      compiler: /usr/bin/clang++
+      env: TOOLSET=clang COMPILER=/usr/bin/clang++ CXXSTD=03,11
+      addons:
+        apt:
+          packages:
+            - clang-3.3
+
+    - os: linux
+      compiler: /usr/bin/clang++
+      env: TOOLSET=clang COMPILER=/usr/bin/clang++ CXXSTD=03,11
+      addons:
+        apt:
+          packages:
+            - clang-3.4
 
     - os: linux
       compiler: clang++-3.5
@@ -131,6 +158,7 @@ matrix:
             - libstdc++-4.9-dev
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.5
 
     - os: linux
       compiler: clang++-3.6
@@ -139,9 +167,20 @@ matrix:
         apt:
           packages:
             - clang-3.6
-            - libstdc++-4.9-dev
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.6
+
+    - os: linux
+      compiler: clang++-3.7
+      env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD=03,11,14,1z
+      addons:
+        apt:
+          packages:
+            - clang-3.7
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
 
     - os: linux
       compiler: clang++-3.8
@@ -153,6 +192,7 @@ matrix:
             - libstdc++-4.9-dev
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.8
 
     - os: linux
       compiler: clang++-3.9
@@ -164,6 +204,7 @@ matrix:
             - libstdc++-4.9-dev
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.9
 
     - os: linux
       compiler: clang++-4.0
@@ -189,7 +230,7 @@ matrix:
 
     - os: linux
       compiler: clang++-6.0
-      env: TOOLSET=clang COMPILER=clang++-6.0 CXXSTD=03,11,14,17
+      env: TOOLSET=clang COMPILER=clang++-6.0 CXXSTD=03,11,14,17,2a
       addons:
         apt:
           packages:
@@ -197,6 +238,28 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-6.0
+
+    - os: linux
+      compiler: clang++-7
+      env: TOOLSET=clang COMPILER=clang++-7 CXXSTD=03,11,14,17,2a
+      addons:
+        apt:
+          packages:
+            - clang-7
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-7
+
+    - os: linux
+      compiler: clang++-8
+      env: TOOLSET=clang COMPILER=clang++-8 CXXSTD=03,11,14,17,2a
+      addons:
+        apt:
+          packages:
+            - clang-8
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-8
 
     - os: linux
       compiler: clang++-libc++
