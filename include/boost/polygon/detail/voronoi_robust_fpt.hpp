@@ -92,6 +92,8 @@ class robust_fpt {
       fpv_(fpv), re_(0.0) {}
   robust_fpt(floating_point_type fpv, relative_error_type error) :
       fpv_(fpv), re_(error) {}
+  robust_fpt(const robust_fpt& that) :
+      fpv_(that.fpv_), re_(that.re_) {}
 
   floating_point_type fpv() const { return fpv_; }
   relative_error_type re() const { return re_; }
