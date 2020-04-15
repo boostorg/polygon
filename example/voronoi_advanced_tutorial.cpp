@@ -90,7 +90,7 @@ struct my_voronoi_diagram_traits {
   typedef voronoi_cell<coordinate_type> cell_type;
   typedef voronoi_vertex<coordinate_type> vertex_type;
   typedef voronoi_edge<coordinate_type> edge_type;
-  typedef class {
+  class vertex_equality_predicate_type {
   public:
     enum { ULPS = 128 };
     bool operator()(const vertex_type &v1, const vertex_type &v2) const {
@@ -99,7 +99,7 @@ struct my_voronoi_diagram_traits {
     }
   private:
     my_ulp_comparison ulp_cmp;
-  } vertex_equality_predicate_type;
+  };
 };
 
 // Voronoi ctype traits for 48-bit signed integer input coordinates.
