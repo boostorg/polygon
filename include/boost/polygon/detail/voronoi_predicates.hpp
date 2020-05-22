@@ -18,6 +18,10 @@ namespace boost {
 namespace polygon {
 namespace detail {
 
+inline double sqr(const double d) {
+  return d * d;
+}
+
 // Predicate utilities. Operates with the coordinate types that could
 // be converted to the 32-bit signed integer without precision loss.
 template <typename CTYPE_TRAITS>
@@ -283,7 +287,7 @@ class voronoi_predicates {
       fpt_type dx = to_fpt(site.x()) - to_fpt(point.x());
       fpt_type dy = to_fpt(site.y()) - to_fpt(point.y());
       // The relative error is at most 3EPS.
-      return (dx * dx + dy * dy) / (to_fpt(2.0) * dx);
+      return (sqr(dx) + sqr(dy)) / (to_fpt(2.0) * dx);
     }
 
     fpt_type find_distance_to_segment_arc(
@@ -295,12 +299,12 @@ class voronoi_predicates {
         const point_type& segment1 = site.point1();
         fpt_type a1 = to_fpt(segment1.x()) - to_fpt(segment0.x());
         fpt_type b1 = to_fpt(segment1.y()) - to_fpt(segment0.y());
-        fpt_type k = get_sqrt(a1 * a1 + b1 * b1);
+        fpt_type k = get_sqrt(sqr(a1) + sqr(b1));
         // Avoid subtraction while computing k.
         if (!is_neg(b1)) {
           k = to_fpt(1.0) / (b1 + k);
         } else {
-          k = (k - b1) / (a1 * a1);
+          k = (k - b1) / sqr(a1);
         }
         // The relative error is at most 7EPS.
         return k * robust_cross_product(
@@ -571,9 +575,9 @@ class voronoi_predicates {
 
         if (recompute_lower_x) {
           // Evaluate radius of the circle.
-          big_int_type sqr_r = (dif_x[0] * dif_x[0] + dif_y[0] * dif_y[0]) *
-                               (dif_x[1] * dif_x[1] + dif_y[1] * dif_y[1]) *
-                               (dif_x[2] * dif_x[2] + dif_y[2] * dif_y[2]);
+          big_int_type sqr_r = (sqr(dif_x[0]) + sqr(dif_y[0])) *
+                               (sqr(dif_x[1]) + sqr(dif_y[1])) *
+                               (sqr(dif_x[2]) + sqr(dif_y[2]));
           fpt_type r = get_sqrt(to_fpt(sqr_r));
 
           // If c_x >= 0 then lower_x = c_x + r,
@@ -586,7 +590,7 @@ class voronoi_predicates {
               circle.lower_x(circle.x() - r * inv_denom);
             }
           } else {
-            big_int_type numer = c_x * c_x - sqr_r;
+            big_int_type numer = sqr(c_x) - sqr_r;
             fpt_type lower_x = to_fpt(numer) * inv_denom / (to_fpt(c_x) + r);
             circle.lower_x(lower_x);
           }
@@ -613,7 +617,7 @@ class voronoi_predicates {
                             static_cast<int_x2_type>(site3.y0());
       big_int_type line_b = static_cast<int_x2_type>(site3.x0()) -
                             static_cast<int_x2_type>(site3.x1());
-      big_int_type segm_len = line_a * line_a + line_b * line_b;
+      big_int_type segm_len = sqr(line_a) + sqr(line_b);
       big_int_type vec_x = static_cast<int_x2_type>(site2.y()) -
                            static_cast<int_x2_type>(site1.y());
       big_int_type vec_y = static_cast<int_x2_type>(site1.x()) -
@@ -638,7 +642,7 @@ class voronoi_predicates {
       big_int_type sum_AB = A + B;
 
       if (is_zero(denom)) {
-        big_int_type numer = teta * teta - sum_AB * sum_AB;
+        big_int_type numer = sqr(teta) - sqr(sum_AB);
         denom = teta * sum_AB;
         cA[0] = denom * sum_x * 2 + numer * vec_x;
         cB[0] = segm_len;
@@ -657,12 +661,12 @@ class voronoi_predicates {
         return;
       }
 
-      big_int_type det = (teta * teta + denom * denom) * A * B * 4;
+      big_int_type det = (sqr(teta) + sqr(denom)) * A * B * 4;
       fpt_type inv_denom_sqr = to_fpt(1.0) / to_fpt(denom);
       inv_denom_sqr *= inv_denom_sqr;
 
       if (recompute_c_x || recompute_lower_x) {
-        cA[0] = sum_x * denom * denom + teta * sum_AB * vec_x;
+        cA[0] = sum_x * sqr(denom) + teta * sum_AB * vec_x;
         cB[0] = 1;
         cA[1] = (segment_index == 2) ? -vec_x : vec_x;
         cB[1] = det;
@@ -673,7 +677,7 @@ class voronoi_predicates {
       }
 
       if (recompute_c_y || recompute_lower_x) {
-        cA[2] = sum_y * denom * denom + teta * sum_AB * vec_y;
+        cA[2] = sum_y * sqr(denom) + teta * sum_AB * vec_y;
         cB[2] = 1;
         cA[3] = (segment_index == 2) ? -vec_y : vec_y;
         cB[3] = det;
@@ -686,7 +690,7 @@ class voronoi_predicates {
       if (recompute_lower_x) {
         cB[0] = cB[0] * segm_len;
         cB[1] = cB[1] * segm_len;
-        cA[2] = sum_AB * (denom * denom + teta * teta);
+        cA[2] = sum_AB * (sqr(denom) + sqr(teta));
         cB[2] = 1;
         cA[3] = (segment_index == 2) ? -teta : teta;
         cB[3] = det;
@@ -720,7 +724,7 @@ class voronoi_predicates {
       big_int_type orientation = a[1] * b[0] - a[0] * b[1];
       if (is_zero(orientation)) {
         fpt_type denom = to_fpt(2.0) * to_fpt(
-            static_cast<big_int_type>(a[0] * a[0] + b[0] * b[0]));
+            static_cast<big_int_type>(sqr(a[0]) + sqr(b[0])));
         c[0] = b[0] * (static_cast<int_x2_type>(segm_start2.x()) -
                        static_cast<int_x2_type>(segm_start1.x())) -
                a[0] * (static_cast<int_x2_type>(segm_start2.y()) -
@@ -738,24 +742,24 @@ class voronoi_predicates {
 
         if (recompute_c_y) {
           cA[0] = b[0] * ((point_index == 2) ? 2 : -2);
-          cA[1] = a[0] * a[0] * (static_cast<int_x2_type>(segm_start1.y()) +
+          cA[1] = a[0].sqr()  * (static_cast<int_x2_type>(segm_start1.y()) +
                                  static_cast<int_x2_type>(segm_start2.y())) -
                   a[0] * b[0] * (static_cast<int_x2_type>(segm_start1.x()) +
                                  static_cast<int_x2_type>(segm_start2.x()) -
                                  static_cast<int_x2_type>(site1.x()) * 2) +
-                  b[0] * b[0] * (static_cast<int_x2_type>(site1.y()) * 2);
+                  b[0].sqr()  * (static_cast<int_x2_type>(site1.y()) * 2);
           fpt_type c_y = to_fpt(sqrt_expr_.eval2(cA, cB));
           c_event.y(c_y / denom);
         }
 
         if (recompute_c_x || recompute_lower_x) {
           cA[0] = a[0] * ((point_index == 2) ? 2 : -2);
-          cA[1] = b[0] * b[0] * (static_cast<int_x2_type>(segm_start1.x()) +
+          cA[1] = b[0].sqr()  * (static_cast<int_x2_type>(segm_start1.x()) +
                                  static_cast<int_x2_type>(segm_start2.x())) -
                   a[0] * b[0] * (static_cast<int_x2_type>(segm_start1.y()) +
                                  static_cast<int_x2_type>(segm_start2.y()) -
                                  static_cast<int_x2_type>(site1.y()) * 2) +
-                  a[0] * a[0] * (static_cast<int_x2_type>(site1.x()) * 2);
+                  a[0].sqr()  * (static_cast<int_x2_type>(site1.x()) * 2);
 
           if (recompute_c_x) {
             fpt_type c_x = to_fpt(sqrt_expr_.eval2(cA, cB));
@@ -764,7 +768,7 @@ class voronoi_predicates {
 
           if (recompute_lower_x) {
             cA[2] = is_neg(c[0]) ? -c[0] : c[0];
-            cB[2] = a[0] * a[0] + b[0] * b[0];
+            cB[2] = a[0].sqr() + b[0].sqr();
             fpt_type lower_x = to_fpt(sqrt_expr_.eval3(cA, cB));
             c_event.lower_x(lower_x / denom);
           }
@@ -791,8 +795,8 @@ class voronoi_predicates {
       cA[1] = a[0] * -dx + b[0] * -dy;
       cA[2] = sign;
       cA[3] = 0;
-      cB[0] = a[0] * a[0] + b[0] * b[0];
-      cB[1] = a[1] * a[1] + b[1] * b[1];
+      cB[0] = a[0].sqr() + b[0].sqr();
+      cB[1] = a[1].sqr() + b[1].sqr();
       cB[2] = a[0] * a[1] + b[0] * b[1];
       cB[3] = (a[0] * dy - b[0] * dx) * (a[1] * dy - b[1] * dx) * -2;
       fpt_type temp = to_fpt(
@@ -800,8 +804,8 @@ class voronoi_predicates {
       fpt_type denom = temp * to_fpt(orientation);
 
       if (recompute_c_y) {
-        cA[0] = b[1] * (dx * dx + dy * dy) - iy * (dx * a[1] + dy * b[1]);
-        cA[1] = b[0] * (dx * dx + dy * dy) - iy * (dx * a[0] + dy * b[0]);
+        cA[0] = b[1] * (dx.sqr() + dy.sqr()) - iy * (dx * a[1] + dy * b[1]);
+        cA[1] = b[0] * (dx.sqr() + dy.sqr()) - iy * (dx * a[0] + dy * b[0]);
         cA[2] = iy * sign;
         fpt_type cy = to_fpt(
             sqrt_expr_evaluator_pss4<big_int_type, efpt_type>(cA, cB));
@@ -809,8 +813,8 @@ class voronoi_predicates {
       }
 
       if (recompute_c_x || recompute_lower_x) {
-        cA[0] = a[1] * (dx * dx + dy * dy) - ix * (dx * a[1] + dy * b[1]);
-        cA[1] = a[0] * (dx * dx + dy * dy) - ix * (dx * a[0] + dy * b[0]);
+        cA[0] = a[1] * (dx.sqr() + dy.sqr()) - ix * (dx * a[1] + dy * b[1]);
+        cA[1] = a[0] * (dx.sqr() + dy.sqr()) - ix * (dx * a[0] + dy * b[0]);
         cA[2] = ix * sign;
 
         if (recompute_c_x) {
@@ -820,7 +824,7 @@ class voronoi_predicates {
         }
 
         if (recompute_lower_x) {
-          cA[3] = orientation * (dx * dx + dy * dy) * (is_neg(temp) ? -1 : 1);
+          cA[3] = orientation * (dx.sqr() + dy.sqr()) * (is_neg(temp) ? -1 : 1);
           fpt_type lower_x = to_fpt(
               sqrt_expr_evaluator_pss4<big_int_type, efpt_type>(cA, cB));
           c_event.lower_x(lower_x / denom);
@@ -867,7 +871,7 @@ class voronoi_predicates {
              static_cast<int_x2_type>(site3.x1());
 
       for (int i = 0; i < 3; ++i)
-        cB[i] = a[i] * a[i] + b[i] * b[i];
+        cB[i] = a[i].sqr() + b[i].sqr();
 
       for (int i = 0; i < 3; ++i) {
         int j = (i+1) % 3;
@@ -926,10 +930,10 @@ class voronoi_predicates {
             get_sqrt(sqrt_expr_.eval2(cA, cB));
         if ((!is_neg(lh) && !is_neg(rh)) || (!is_pos(lh) && !is_pos(rh)))
           return lh + rh;
-        cA[0] = A[0] * A[0] * B[0] + A[1] * A[1] * B[1] -
-                A[2] * A[2] * B[3] * B[2];
+        cA[0] = A[0].sqr() * B[0] + A[1].sqr() * B[1] -
+                A[2].sqr() * B[3] * B[2];
         cB[0] = 1;
-        cA[1] = A[0] * A[1] * 2 - A[2] * A[2] * B[3];
+        cA[1] = A[0] * A[1] * 2 - A[2].sqr() * B[3];
         cB[1] = B[0] * B[1];
         _fpt numer = sqrt_expr_.eval2(cA, cB);
         return numer / (lh - rh);
@@ -950,9 +954,9 @@ class voronoi_predicates {
         return lh + rh;
       cA[0] = A[3] * A[0] * 2;
       cA[1] = A[3] * A[1] * 2;
-      cA[2] = A[0] * A[0] * B[0] + A[1] * A[1] * B[1] +
-              A[3] * A[3] - A[2] * A[2] * B[2] * B[3];
-      cA[3] = A[0] * A[1] * 2 - A[2] * A[2] * B[3];
+      cA[2] = A[0].sqr() * B[0] + A[1].sqr() * B[1] +
+              A[3].sqr() - A[2].sqr() * B[2] * B[3];
+      cA[3] = A[0] * A[1] * 2 - A[2].sqr() * B[3];
       cB[3] = B[0] * B[1];
       _fpt numer = sqrt_expr_evaluator_pss3<_int, _fpt>(cA, cB);
       return numer / (lh - rh);
@@ -968,8 +972,8 @@ class voronoi_predicates {
       _fpt rh = sqrt_expr_.eval2(A+2, B+2);
       if ((!is_neg(lh) && !is_neg(rh)) || (!is_pos(lh) && !is_pos(rh)))
         return lh + rh;
-      cA[0] = A[0] * A[0] * B[0] + A[1] * A[1] * B[1] -
-              A[2] * A[2] - A[3] * A[3] * B[0] * B[1];
+      cA[0] = A[0].sqr() * B[0] + A[1].sqr() * B[1] -
+              A[2].sqr() - A[3].sqr() * B[0] * B[1];
       cB[0] = 1;
       cA[1] = (A[0] * A[1] - A[2] * A[3]) * 2;
       cB[1] = B[3];
@@ -1027,9 +1031,9 @@ class voronoi_predicates {
       c_y -= robust_fpt_type(dif_y1 * sum_y1 * dif_x2, to_fpt(2.0));
       robust_dif_type lower_x(c_x);
       lower_x -= robust_fpt_type(get_sqrt(
-          (dif_x1 * dif_x1 + dif_y1 * dif_y1) *
-          (dif_x2 * dif_x2 + dif_y2 * dif_y2) *
-          (dif_x3 * dif_x3 + dif_y3 * dif_y3)), to_fpt(5.0));
+          (sqr(dif_x1) + sqr(dif_y1)) *
+          (sqr(dif_x2) + sqr(dif_y2)) *
+          (sqr(dif_x3) + sqr(dif_y3))), to_fpt(5.0));
       c_event = circle_type(
           c_x.dif().fpv() * inv_orientation.fpv(),
           c_y.dif().fpv() * inv_orientation.fpv(),
@@ -1090,19 +1094,19 @@ class voronoi_predicates {
           static_cast<int_x2_type>(site3.x1()) -
           static_cast<int_x2_type>(site3.x0())), to_fpt(1.0));
       robust_fpt_type inv_segm_len(to_fpt(1.0) /
-          get_sqrt(line_a * line_a + line_b * line_b), to_fpt(3.0));
+          get_sqrt(sqr(line_a) + sqr(line_b)), to_fpt(3.0));
       robust_dif_type t;
       if (ot::eval(denom) == ot::COLLINEAR) {
         t += teta / (robust_fpt_type(to_fpt(8.0)) * A);
         t -= A / (robust_fpt_type(to_fpt(2.0)) * teta);
       } else {
-        robust_fpt_type det = ((teta * teta + denom * denom) * A * B).sqrt();
+        robust_fpt_type det = ((sqr(teta) + sqr(denom)) * A * B).sqrt();
         if (segment_index == 2) {
-          t -= det / (denom * denom);
+          t -= det / sqr(denom);
         } else {
-          t += det / (denom * denom);
+          t += det / sqr(denom);
         }
-        t += teta * (A + B) / (robust_fpt_type(to_fpt(2.0)) * denom * denom);
+        t += teta * (A + B) / (robust_fpt_type(to_fpt(2.0)) * sqr(denom));
       }
       robust_dif_type c_x, c_y;
       c_x += robust_fpt_type(to_fpt(0.5) *
@@ -1155,7 +1159,7 @@ class voronoi_predicates {
         static_cast<int_x2_type>(segm_end2.x()) -
         static_cast<int_x2_type>(segm_start2.x())), to_fpt(1.0));
       if (ot::eval(orientation) == ot::COLLINEAR) {
-        robust_fpt_type a(a1 * a1 + b1 * b1, to_fpt(2.0));
+        robust_fpt_type a(sqr(a1) + sqr(b1), to_fpt(2.0));
         robust_fpt_type c(robust_cross_product(
             static_cast<int_x2_type>(segm_end1.y()) -
             static_cast<int_x2_type>(segm_start1.y()),
@@ -1217,8 +1221,8 @@ class voronoi_predicates {
         c_event =
             circle_type(c_x.dif().fpv(), c_y.dif().fpv(), lower_x.dif().fpv());
       } else {
-        robust_fpt_type sqr_sum1(get_sqrt(a1 * a1 + b1 * b1), to_fpt(2.0));
-        robust_fpt_type sqr_sum2(get_sqrt(a2 * a2 + b2 * b2), to_fpt(2.0));
+        robust_fpt_type sqr_sum1(get_sqrt(sqr(a1) + sqr(b1)), to_fpt(2.0));
+        robust_fpt_type sqr_sum2(get_sqrt(sqr(a2) + sqr(b2)), to_fpt(2.0));
         robust_fpt_type a(robust_cross_product(
           static_cast<int_x2_type>(segm_end1.x()) -
           static_cast<int_x2_type>(segm_start1.x()),
@@ -1231,7 +1235,7 @@ class voronoi_predicates {
         if (!is_neg(a)) {
           a += sqr_sum1 * sqr_sum2;
         } else {
-          a = (orientation * orientation) / (sqr_sum1 * sqr_sum2 - a);
+          a = sqr(orientation) / (sqr_sum1 * sqr_sum2 - a);
         }
         robust_fpt_type or1(robust_cross_product(
             static_cast<int_x2_type>(segm_end1.y()) -
@@ -1298,7 +1302,7 @@ class voronoi_predicates {
         } else {
           t -= det.sqrt();
         }
-        t /= (a * a);
+        t /= sqr(a);
         robust_dif_type c_x(ix), c_y(iy);
         c_x += t * (robust_fpt_type(a1) * sqr_sum2);
         c_x += t * (robust_fpt_type(a2) * sqr_sum1);
@@ -1348,9 +1352,9 @@ class voronoi_predicates {
           site3.x0(), site3.y0(),
           site3.x1(), site3.y1()), to_fpt(1.0));
 
-      robust_fpt_type len1 = (a1 * a1 + b1 * b1).sqrt();
-      robust_fpt_type len2 = (a2 * a2 + b2 * b2).sqrt();
-      robust_fpt_type len3 = (a3 * a3 + b3 * b3).sqrt();
+      robust_fpt_type len1 = (sqr(a1) + sqr(b1)).sqrt();
+      robust_fpt_type len2 = (sqr(a2) + sqr(b2)).sqrt();
+      robust_fpt_type len3 = (sqr(a3) + sqr(b3)).sqrt();
       robust_fpt_type cross_12(robust_cross_product(
           static_cast<int_x2_type>(site1.x1()) -
           static_cast<int_x2_type>(site1.x0()),

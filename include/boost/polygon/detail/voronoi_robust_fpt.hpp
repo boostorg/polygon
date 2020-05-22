@@ -201,6 +201,12 @@ class robust_fpt {
     return robust_fpt(fpv, re);
   }
 
+  robust_fpt sqr() const {
+    floating_point_type fpv = this->fpv_ * this->fpv_;
+    relative_error_type re = this->re_ * 2 + ROUNDING_ERROR;
+    return robust_fpt(fpv, re);
+  }
+
   robust_fpt sqrt() const {
     return robust_fpt(get_sqrt(fpv_),
                       re_ * static_cast<relative_error_type>(0.5) +
@@ -211,6 +217,11 @@ class robust_fpt {
   floating_point_type fpv_;
   relative_error_type re_;
 };
+
+template <typename T>
+robust_fpt<T> sqr(const robust_fpt<T>& that) {
+  return that.sqr();
+}
 
 template <typename T>
 robust_fpt<T> get_sqrt(const robust_fpt<T>& that) {
@@ -451,7 +462,7 @@ class robust_sqrt_expr {
     if ((!is_neg(a) && !is_neg(b)) ||
         (!is_pos(a) && !is_pos(b)))
       return a + b;
-    return convert(A[0] * A[0] * B[0] - A[1] * A[1] * B[1]) / (a - b);
+    return convert(A[0].sqr() * B[0] - A[1].sqr() * B[1]) / (a - b);
   }
 
   // Evaluates expression (re = 16 EPS):
@@ -462,7 +473,7 @@ class robust_sqrt_expr {
     if ((!is_neg(a) && !is_neg(b)) ||
         (!is_pos(a) && !is_pos(b)))
       return a + b;
-    tA[3] = A[0] * A[0] * B[0] + A[1] * A[1] * B[1] - A[2] * A[2] * B[2];
+    tA[3] = A[0].sqr() * B[0] + A[1].sqr() * B[1] - A[2].sqr() * B[2];
     tB[3] = 1;
     tA[4] = A[0] * A[1] * 2;
     tB[4] = B[0] * B[1];
@@ -479,8 +490,8 @@ class robust_sqrt_expr {
     if ((!is_neg(a) && !is_neg(b)) ||
         (!is_pos(a) && !is_pos(b)))
       return a + b;
-    tA[0] = A[0] * A[0] * B[0] + A[1] * A[1] * B[1] -
-            A[2] * A[2] * B[2] - A[3] * A[3] * B[3];
+    tA[0] = A[0].sqr() * B[0] + A[1].sqr() * B[1] -
+            A[2].sqr() * B[2] - A[3].sqr() * B[3];
     tB[0] = 1;
     tA[1] = A[0] * A[1] * 2;
     tB[1] = B[0] * B[1];
