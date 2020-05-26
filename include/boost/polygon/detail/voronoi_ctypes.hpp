@@ -516,7 +516,7 @@ class extended_int {
   extended_int sqr() const {
     extended_int ret_val;
     if (! this->count_)
-      ret_val.count() = 0;
+      ret_val.count_ = 0;
     else
       ret_val.mksqr(this->chunks_, this->size());
     return ret_val;
@@ -755,7 +755,7 @@ class extended_int {
       this->count_ = sz * 2;
       mpn_sqr(this->chunks_, c, sz);
       if (this->chunks_[this->count_ - 1] == 0)
-        -- this->chunks_[this->count_ - 1];
+        -- this->count_;
     } else
 #endif
     {
