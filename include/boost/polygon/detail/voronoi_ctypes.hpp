@@ -209,6 +209,11 @@ class extended_exponent_fpt {
     return extended_exponent_fpt(std::sqrt(val), exp >> 1);
   }
 
+  // Add to the exponent.
+  extended_exponent_fpt addexp(int n) const {
+    return extended_exponent_fpt(this->val_, this->exp_ + n);
+  }
+
   fpt_type d() const {
     return std::ldexp(val_, exp_);
   }
@@ -264,9 +269,11 @@ bool is_zero(const extended_exponent_fpt<_fpt>& that) {
 
 // Very efficient stack allocated big integer class.
 // Supports next set of arithmetic operations: +, -, *.
-template<std::size_t N>
+template<std::size_t AN>
 class extended_int {
  public:
+
+  static constexpr std::size_t N = AN;
 
   using chunk_type  = 
 #if BOOST_VORONOI_USE_GMP
@@ -293,6 +300,15 @@ class extended_int {
     64
 #else
     32
+#endif
+    ;
+
+  // Exponent conversion between this type and the extended floating point type.
+  static constexpr int chunks_to_fptexp =
+#if BOOST_VORONOI_64_T
+    10
+#else
+    5
 #endif
     ;
 
@@ -522,6 +538,17 @@ class extended_int {
     return ret_val;
   }
 
+  // Square of a positive non-zero value with more than half the limbs utilized.
+  // Such a number does not fit the result, thus it is right shifted.
+  // The caller shall be aware of the right shift performed by this function
+  // on the result.
+  extended_int sqrext() const {
+    extended_int ret_val;
+    assert(this->size() * 2 > N);
+    ret_val.mksqrext(this->chunks_, this->size());
+    return ret_val;
+  }
+
   void mul(const extended_int& e1, const extended_int& e2) {
     if (!e1.count() || !e2.count()) {
       this->count_ = 0;
@@ -530,6 +557,35 @@ class extended_int {
     mul(e1.chunks(), e1.size(), e2.chunks(), e2.size());
     if ((e1.count() > 0) ^ (e2.count() > 0))
       this->count_ = -this->count_;
+  }
+
+  // Multiple of two nonzero values, result of which does not fit the resulting type,
+  // thus it is right shifted.
+  // The caller shall be aware of the right shift performed by this function
+  // on the result.
+  extended_int mulext(const extended_int& rhs) const {
+    assert(this->size() > 0);
+    assert(rhs.size() > 0);
+    assert(this->size() + rhs.size() > N);
+    extended_int ret_val;
+    ret_val.mulext_(this->chunks(), this->size(), rhs.chunks(), rhs.size());
+    if ((this->count() > 0) ^ (rhs.count() > 0))
+      ret_val.count_ = -ret_val.count_;
+    return ret_val;
+  }
+
+  // Shift the limbs of this object by nshift positions right.
+  void rshiftme(std::size_t nshift) {
+    std::size_t m = this->size();
+    if (nshift >= m) {
+      // Underflow to zero.
+      this->count_ = 0;
+    } else {
+      m -= nshift;
+      for (std::size_t i = 0; i < m; ++ i)
+        this->chunks_[i] = this->chunks_[i + nshift];
+      this->count_ = this->count_ > 0 ? m : - m;
+    }
   }
 
   const chunk_type* chunks() const {
@@ -564,6 +620,7 @@ class extended_int {
                           static_cast<fpt64>(l);
         }
       } else {
+        assert(sz >= 2);
         auto last = this->chunks_[sz - 1];
         auto prev = this->chunks_[sz - 2];
         uint32 l, h;
@@ -587,7 +644,7 @@ class extended_int {
           ret_val.first *= static_cast<fpt64>(0x100000000LL);
           ret_val.first += static_cast<fpt64>(h);
         }
-        ret_val.second = static_cast<int>((sz - 3) << 5);
+        ret_val.second = static_cast<int>((sz - 3) << (chunks_to_fptexp / 2));
       }
 #else
       if (sz == 1) {
@@ -601,7 +658,7 @@ class extended_int {
           ret_val.first *= static_cast<fpt64>(0x100000000LL);
           ret_val.first += static_cast<fpt64>(this->chunks_[sz - i]);
         }
-        ret_val.second = static_cast<int>((sz - 3) << 5);
+        ret_val.second = static_cast<int>((sz - 3) << chunks_to_fptexp);
       }
 #endif
     }
@@ -704,84 +761,140 @@ class extended_int {
   // multiple of two positive nonzero values
   void mul(const chunk_type* c1, std::size_t sz1,
            const chunk_type* c2, std::size_t sz2) {
-#if BOOST_VORONOI_USE_GMP
     assert(sz1 > 0);
     assert(sz2 > 0);
     assert(this->chunks_ != c1);
     assert(this->chunks_ != c2);
-    if (sz1 + sz2 <= N) {
-      this->count_ = sz1 + sz2;
-      auto msb = (sz1 >= sz2) ? mpn_mul(this->chunks_, c1, sz1, c2, sz2) : mpn_mul(this->chunks_, c2, sz2, c1, sz1);
-      assert(msb == this->chunks_[this->count_ - 1]);
-      if (msb == 0)
-        -- this->count_;
-    } else
+    assert(sz1 + sz2 <= N);
+#if BOOST_VORONOI_USE_GMP
+    this->count_ = sz1 + sz2;
+    auto msb = (sz1 >= sz2) ? mpn_mul(this->chunks_, c1, sz1, c2, sz2) : mpn_mul(this->chunks_, c2, sz2, c1, sz1);
+    assert(msb == this->chunks_[this->count_ - 1]);
+    if (msb == 0)
+      -- this->count_;
+#else
+    chunk_type2 cur = 0, nxt, tmp;
+    // This stinks. One only calculates maximum N of the most significant limbs
+    // without letting the caller know.
+    this->count_ = sz1 + sz2 - 1;
+    for (std::size_t shift = 0; shift < static_cast<std::size_t>(this->count_); ++shift) {
+      nxt = 0;
+      for (std::size_t first = 0; first <= shift; ++first) {
+        if (first >= sz1)
+          break;
+        std::size_t second = shift - first;
+        if (second >= sz2)
+          continue;
+        tmp = static_cast<chunk_type2>(c1[first]) * static_cast<chunk_type2>(c2[second]);
+        cur += static_cast<chunk_type>(tmp);
+        nxt += tmp >> chunk_shift;
+      }
+      this->chunks_[shift] = static_cast<chunk_type>(cur);
+      cur = nxt + (cur >> chunk_shift);
+    }
+    // One should never trim the most significant limb.
+    assert(cur == 0 || this->count_ < N);
+    if (cur && (this->count_ != N)) {
+      this->chunks_[this->count_] = static_cast<chunk_type>(cur);
+      ++this->count_;
+    }
 #endif
-    {
-      chunk_type2 cur = 0, nxt, tmp;
-      // This stinks. One only calculates maximum N of the most significant limbs
-      // without letting the caller know.
-      this->count_ = static_cast<int32>((std::min)(N-1, sz1 + sz2 - 1));
-      for (std::size_t shift = 0; shift < static_cast<std::size_t>(this->count_); ++shift) {
-        nxt = 0;
-        for (std::size_t first = 0; first <= shift; ++first) {
-          if (first >= sz1)
-            break;
-          std::size_t second = shift - first;
-          if (second >= sz2)
-            continue;
-          tmp = static_cast<chunk_type2>(c1[first]) * static_cast<chunk_type2>(c2[second]);
-          cur += static_cast<chunk_type>(tmp);
-          nxt += tmp >> chunk_shift;
-        }
-        this->chunks_[shift] = static_cast<chunk_type>(cur);
-        cur = nxt + (cur >> chunk_shift);
+  }
+
+  // Multiple of two positive nonzero values, result of which does not fit the resulting type,
+  // thus it is right shifted.
+  void mulext_(const chunk_type* c1, std::size_t sz1,
+               const chunk_type* c2, std::size_t sz2) {
+    assert(sz1 > 0 && sz2 > 0 && sz1 + sz2 > N);
+    chunk_type2 cur = 0, nxt, tmp;
+    // This stinks. One only calculates maximum N of the most significant limbs
+    // without letting the caller know.
+    this->count_ = N-1;
+    for (std::size_t shift = 0; shift < static_cast<std::size_t>(this->count_); ++shift) {
+      nxt = 0;
+      for (std::size_t first = 0; first <= shift; ++first) {
+        if (first >= sz1)
+          break;
+        std::size_t second = shift - first;
+        if (second >= sz2)
+          continue;
+        tmp = static_cast<chunk_type2>(c1[first]) * static_cast<chunk_type2>(c2[second]);
+        cur += static_cast<chunk_type>(tmp);
+        nxt += tmp >> chunk_shift;
       }
-      // One should never trim the most significant limb.
-      assert(cur == 0 || this->count_ < N);
-      if (cur && (this->count_ != N)) {
-        this->chunks_[this->count_] = static_cast<chunk_type>(cur);
-        ++this->count_;
-      }
+      this->chunks_[shift] = static_cast<chunk_type>(cur);
+      cur = nxt + (cur >> chunk_shift);
+    }
+    // One should never trim the most significant limb.
+    assert(cur == 0 || this->count_ < N);
+    if (cur && (this->count_ != N)) {
+      this->chunks_[this->count_] = static_cast<chunk_type>(cur);
+      ++this->count_;
     }
   }
 
   // square of a positive non-zero value
   void mksqr(const chunk_type* c, std::size_t sz) {
+    assert(2 * sz <= N);
 #if BOOST_VORONOI_USE_GMP
     assert(sz > 0);
     assert(this->chunks_ != c);
-    if (2 * sz <= N) {
-      this->count_ = sz * 2;
-      mpn_sqr(this->chunks_, c, sz);
-      if (this->chunks_[this->count_ - 1] == 0)
-        -- this->count_;
-    } else
+    this->count_ = sz * 2;
+    mpn_sqr(this->chunks_, c, sz);
+    if (this->chunks_[this->count_ - 1] == 0)
+      -- this->count_;
+#else
+    chunk_type2 cur = 0, nxt, tmp;
+    this->count_ = sz * 2 - 1;
+    for (std::size_t shift = 0; shift < static_cast<std::size_t>(this->count_); ++shift) {
+      nxt = 0;
+      for (std::size_t first = 0; first <= shift; ++first) {
+        if (first >= sz)
+          break;
+        std::size_t second = shift - first;
+        if (second >= sz)
+          continue;
+        tmp = static_cast<chunk_type2>(c[first]) * static_cast<chunk_type2>(c[second]);
+        cur += static_cast<chunk_type>(tmp);
+        nxt += tmp >> chunk_shift;
+      }
+      this->chunks_[shift] = static_cast<chunk_type>(cur);
+      cur = nxt + (cur >> chunk_shift);
+    }
+    // One should never trim the most significant limb.
+    assert(cur == 0 || this->count_ < N);
+    if (cur && (this->count_ != N)) {
+      this->chunks_[this->count_] = static_cast<chunk_type>(cur);
+      ++this->count_;
+    }
 #endif
-    {
-      chunk_type2 cur = 0, nxt, tmp;
-      this->count_ = static_cast<int32>((std::min)(N-1, sz * 2 - 1));
-      for (std::size_t shift = 0; shift < static_cast<std::size_t>(this->count_); ++shift) {
-        nxt = 0;
-        for (std::size_t first = 0; first <= shift; ++first) {
-          if (first >= sz)
-            break;
-          std::size_t second = shift - first;
-          if (second >= sz)
-            continue;
-          tmp = static_cast<chunk_type2>(c[first]) * static_cast<chunk_type2>(c[second]);
-          cur += static_cast<chunk_type>(tmp);
-          nxt += tmp >> chunk_shift;
-        }
-        this->chunks_[shift] = static_cast<chunk_type>(cur);
-        cur = nxt + (cur >> chunk_shift);
+  }
+
+  // Square of a positive non-zero value with more than half the limbs utilized.
+  // Such a number does not fit the result, thus it is right shifted.
+  void mksqrext(const chunk_type* c, std::size_t sz) {
+    chunk_type2 cur = 0, nxt, tmp;
+    this->count_ = N-1;
+    for (std::size_t shift = 0; shift < static_cast<std::size_t>(this->count_); ++shift) {
+      nxt = 0;
+      for (std::size_t first = 0; first <= shift; ++first) {
+        if (first >= sz)
+          break;
+        std::size_t second = shift - first;
+        if (second >= sz)
+          continue;
+        tmp = static_cast<chunk_type2>(c[first]) * static_cast<chunk_type2>(c[second]);
+        cur += static_cast<chunk_type>(tmp);
+        nxt += tmp >> chunk_shift;
       }
-      // One should never trim the most significant limb.
-      assert(cur == 0 || this->count_ < N);
-      if (cur && (this->count_ != N)) {
-        this->chunks_[this->count_] = static_cast<chunk_type>(cur);
-        ++this->count_;
-      }
+      this->chunks_[shift] = static_cast<chunk_type>(cur);
+      cur = nxt + (cur >> chunk_shift);
+    }
+    // One should never trim the most significant limb.
+    assert(cur == 0 || this->count_ < N);
+    if (cur && (this->count_ != N)) {
+      this->chunks_[this->count_] = static_cast<chunk_type>(cur);
+      ++this->count_;
     }
   }
 

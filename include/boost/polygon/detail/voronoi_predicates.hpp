@@ -958,7 +958,7 @@ class voronoi_predicates {
               A[3].sqr() - A[2].sqr() * B[2] * B[3];
       cA[3] = A[0] * A[1] * 2 - A[2].sqr() * B[3];
       cB[3] = B[0] * B[1];
-      _fpt numer = sqrt_expr_evaluator_pss3<_int, _fpt>(cA, cB);
+      _fpt numer = sqrt_expr_evaluator_pss3ext<_int, _fpt>(cA, cB);
       return numer / (lh - rh);
     }
 
@@ -978,6 +978,25 @@ class voronoi_predicates {
       cA[1] = (A[0] * A[1] - A[2] * A[3]) * 2;
       cB[1] = B[3];
       _fpt numer = sqrt_expr_.eval2(cA, cB);
+      return numer / (lh - rh);
+    }
+
+    template <typename _int, typename _fpt>
+    // Evaluates A[0] * sqrt(B[0]) + A[1] * sqrt(B[1]) +
+    //           A[2] + A[3] * sqrt(B[0] * B[1]).
+    // B[3] = B[0] * B[1].
+    _fpt sqrt_expr_evaluator_pss3ext(_int *A, _int *B) {
+      _int cA[2], cB[2];
+      _fpt lh = sqrt_expr_.eval2(A, B);
+      _fpt rh = sqrt_expr_.eval2(A+2, B+2);
+      if ((!is_neg(lh) && !is_neg(rh)) || (!is_pos(lh) && !is_pos(rh)))
+        return lh + rh;
+      cA[0] = A[0].sqr() * B[0] + A[1].sqr() * B[1] -
+              A[2].sqr() - A[3].sqr() * B[0] * B[1];
+      cB[0] = 1;
+      cA[1] = (A[0] * A[1] - A[2] * A[3]) * 2;
+      cB[1] = B[3];
+      _fpt numer = sqrt_expr_.eval2ext(cA, cB);
       return numer / (lh - rh);
     }
 

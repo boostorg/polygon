@@ -465,6 +465,62 @@ class robust_sqrt_expr {
     return convert(A[0].sqr() * B[0] - A[1].sqr() * B[1]) / (a - b);
   }
 
+  // Evaluates expression A^2 * B, where the expression may overflow the _int type.
+  // Returns the expression + exponent.
+  std::pair<_int, int> eval2ext_a2b(const _int &A, const _int &B) {
+    int A_size = int(A.size());
+    int B_size = int(B.size());
+    if (A_size && B_size) {
+      int rshift  = std::max(0, A_size * 2 - int(_int::N));
+      _int u = rshift ? A.sqrext() : A.sqr();
+      int rshift2 = std::max(0, int(u.size()) + B_size - int(_int::N));
+      return std::make_pair(rshift2 ? u.mulext(B) : (u * B), rshift + rshift2);
+    } else {
+      return std::make_pair(int(0), 0);
+    }
+  }
+
+  // Evaluates expression (re = 7 EPS):
+  // A[0] * sqrt(B[0]) + A[1] * sqrt(B[1]).
+  // This variant of eval2() may be called with very large A and B,
+  // where the expression A[0].sqr() * B[0] - A[1].sqr() * B[1]
+  // could overflow.
+  _fpt eval2ext(_int* A, _int* B) {
+    _fpt a = eval1(A, B);
+    _fpt b = eval1(A + 1, B + 1);
+    if ((!is_neg(a) && !is_neg(b)) ||
+        (!is_pos(a) && !is_pos(b)))
+      return a + b;
+
+    std::pair<_int, int> u = eval2ext_a2b(A[0], B[0]);
+    std::pair<_int, int> v = eval2ext_a2b(A[1], B[1]);
+    // Make sure the top most limb is empty, so the successive addition
+    // will fit the result.
+    if (u.first.size() == _int::N) {
+      u.first.rshiftme(1);
+      ++ u.second;
+    }
+    if (v.first.size() == _int::N) {
+      v.first.rshiftme(1);
+      ++ v.second;
+    }
+    assert(u.first.size() < _int::N);
+    assert(v.first.size() < _int::N);
+
+    // Normalize the two numbers to a common exponent.
+    int exp;
+    if (u.second > v.second) {
+      v.first.rshiftme(u.second - v.second);
+      exp = u.second;
+    } else {
+      u.first.rshiftme(v.second - u.second);
+      exp = v.second;
+    }
+
+    // Finally calculate eval2()
+    return convert(u.first - v.first).addexp(exp << _int::chunks_to_fptexp) / (a - b);
+  }
+
   // Evaluates expression (re = 16 EPS):
   // A[0] * sqrt(B[0]) + A[1] * sqrt(B[1]) + A[2] * sqrt(B[2]).
   _fpt eval3(_int* A, _int* B) {
@@ -480,6 +536,20 @@ class robust_sqrt_expr {
     return eval2(tA + 3, tB + 3) / (a - b);
   }
 
+  // Evaluates expression (re = 16 EPS):
+  // A[0] * sqrt(B[0]) + A[1] * sqrt(B[1]) + A[2] * sqrt(B[2]).
+  _fpt eval3ext(_int* A, _int* B) {
+    _fpt a = eval2(A, B);
+    _fpt b = eval1(A + 2, B + 2);
+    if ((!is_neg(a) && !is_neg(b)) ||
+        (!is_pos(a) && !is_pos(b)))
+      return a + b;
+    tA[3] = A[0].sqr() * B[0] + A[1].sqr() * B[1] - A[2].sqr() * B[2];
+    tB[3] = 1;
+    tA[4] = A[0] * A[1] * 2;
+    tB[4] = B[0] * B[1];
+    return eval2ext(tA + 3, tB + 3) / (a - b);
+  }
 
   // Evaluates expression (re = 25 EPS):
   // A[0] * sqrt(B[0]) + A[1] * sqrt(B[1]) +
@@ -498,6 +568,25 @@ class robust_sqrt_expr {
     tA[2] = A[2] * A[3] * -2;
     tB[2] = B[2] * B[3];
     return eval3(tA, tB) / (a - b);
+  }
+
+  // Evaluates expression (re = 25 EPS):
+  // A[0] * sqrt(B[0]) + A[1] * sqrt(B[1]) +
+  // A[2] * sqrt(B[2]) + A[3] * sqrt(B[3]).
+  _fpt eval4ext(_int* A, _int* B) {
+    _fpt a = eval2(A, B);
+    _fpt b = eval2(A + 2, B + 2);
+    if ((!is_neg(a) && !is_neg(b)) ||
+        (!is_pos(a) && !is_pos(b)))
+      return a + b;
+    tA[0] = A[0].sqr() * B[0] + A[1].sqr() * B[1] -
+            A[2].sqr() * B[2] - A[3].sqr() * B[3];
+    tB[0] = 1;
+    tA[1] = A[0] * A[1] * 2;
+    tB[1] = B[0] * B[1];
+    tA[2] = A[2] * A[3] * -2;
+    tB[2] = B[2] * B[3];
+    return eval3ext(tA, tB) / (a - b);
   }
 
  private:
