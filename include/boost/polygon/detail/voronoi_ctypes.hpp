@@ -11,6 +11,7 @@
 #define BOOST_POLYGON_DETAIL_VORONOI_CTYPES
 
 #include <boost/cstdint.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -38,7 +39,6 @@ typedef boost::int32_t int32;
 typedef boost::int64_t int64;
 typedef boost::uint32_t uint32;
 typedef boost::uint64_t uint64;
-typedef unsigned __int128 uint128;
 typedef double fpt64;
 
 // If two floating-point numbers in the same format are ordered (x < y),
@@ -287,7 +287,17 @@ class extended_int {
 
   using chunk_type2 = 
 #if BOOST_VORONOI_64_T
-    uint128
+    #ifdef _MSC_VER
+        // Visual studio does not support 128bit type natively. boost::multiprecision::uint128_t utilizes 32bit limbs for multiplication,
+        // which is not the best we can do on a 64bit system. Give the caller an option to replace the 128bit uint with its own optimized solution.
+        #ifdef BOOST_VORONOI_UINT128T
+            BOOST_VORONOI_UINT128T
+        #else
+            boost::multiprecision::uint128_t
+        #endif
+    #else
+        unsigned __int128
+    #endif
 #else
     uint64
 #endif
@@ -328,7 +338,7 @@ class extended_int {
 
   extended_int(int64 that) {
     if (that > 0) {
-#ifdef BOOST_VORONOI_64_T
+#if BOOST_VORONOI_64_T
       this->chunks_[0] = that;
       this->count_ = 1;
 #else
@@ -337,7 +347,7 @@ class extended_int {
       this->count_ = this->chunks_[1] ? 2 : 1;
 #endif
     } else if (that < 0) {
-#ifdef BOOST_VORONOI_64_T
+#if BOOST_VORONOI_64_T
       this->chunks_[0] = -that;
       this->count_ = -1;
 #else
@@ -372,7 +382,7 @@ class extended_int {
 
   extended_int& operator=(int64 that) {
     if (that > 0) {
-#ifdef BOOST_VORONOI_64_T
+#if BOOST_VORONOI_64_T
       this->chunks_[0] = that;
       this->count_ = 1;
 #else
@@ -381,7 +391,7 @@ class extended_int {
       this->count_ = this->chunks_[1] ? 2 : 1;
 #endif
     } else if (that < 0) {
-#ifdef BOOST_VORONOI_64_T
+#if BOOST_VORONOI_64_T
       this->chunks_[0] = -that;
       this->count_ = -1;
 #else
@@ -606,7 +616,7 @@ class extended_int {
     if (!sz) {
       return ret_val;
     } else {
-#ifdef BOOST_VORONOI_64_T
+#if BOOST_VORONOI_64_T
       if (sz == 1) {
         auto   l0 = this->chunks_[0];
         uint32 l, h;
@@ -957,7 +967,7 @@ struct voronoi_ctype_traits<int32> {
   typedef int32 int_type;
   typedef int64 int_x2_type;
   typedef uint64 uint_x2_type;
-#ifdef BOOST_VORONOI_64_T
+#if BOOST_VORONOI_64_T
   // using uint64 
   typedef extended_int<33> big_int_type;
 #else
