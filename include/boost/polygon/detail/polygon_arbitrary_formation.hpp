@@ -211,8 +211,8 @@ namespace boost { namespace polygon{
       if(pt.y() == other_pt.y())
         return (high_precision)pt.y();
       evalAtXforYxIn = (high_precision)xIn;
-      evalAtXforYx1 = pt.get(HORIZONTAL);
-      evalAtXforYy1 = pt.get(VERTICAL);
+      evalAtXforYx1 = (high_precision)pt.get(HORIZONTAL);
+      evalAtXforYy1 = (high_precision)pt.get(VERTICAL);
       evalAtXforYdx1 = evalAtXforYxIn - evalAtXforYx1;
       evalAtXforY0 = high_precision(0);
       if(evalAtXforYdx1 == evalAtXforY0) return evalAtXforYret = evalAtXforYy1;
@@ -239,8 +239,8 @@ namespace boost { namespace polygon{
           return evalAtXforYret;
         }
         evalAtXforYxIn = (high_precision)xIn;
-        evalAtXforYx1 = pt.get(HORIZONTAL);
-        evalAtXforYy1 = pt.get(VERTICAL);
+        evalAtXforYx1 = (high_precision)pt.get(HORIZONTAL);
+        evalAtXforYy1 = (high_precision)pt.get(VERTICAL);
         evalAtXforYdx1 = evalAtXforYxIn - evalAtXforYx1;
         evalAtXforY0 = high_precision(0);
         if(evalAtXforYdx1 == evalAtXforY0) return evalAtXforYret = evalAtXforYy1;
