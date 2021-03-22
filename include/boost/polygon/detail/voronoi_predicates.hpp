@@ -1034,9 +1034,9 @@ class voronoi_predicates {
           c_x.dif().fpv() * inv_orientation.fpv(),
           c_y.dif().fpv() * inv_orientation.fpv(),
           lower_x.dif().fpv() * inv_orientation.fpv());
-      bool recompute_c_x = c_x.dif().ulp() > ULPS;
-      bool recompute_c_y = c_y.dif().ulp() > ULPS;
-      bool recompute_lower_x = lower_x.dif().ulp() > ULPS;
+      bool recompute_c_x = c_x.dif().ulp() > ULPS || isnan(c_x.dif().ulp());
+      bool recompute_c_y = c_y.dif().ulp() > ULPS || isnan(c_y.dif().ulp());
+      bool recompute_lower_x = lower_x.dif().ulp() > ULPS || isnan(lower_x.dif().ulp());
       if (recompute_c_x || recompute_c_y || recompute_lower_x) {
         exact_circle_formation_functor_.ppp(
             site1, site2, site3, c_event,
@@ -1121,9 +1121,9 @@ class voronoi_predicates {
       lower_x += r * inv_segm_len;
       c_event = circle_type(
           c_x.dif().fpv(), c_y.dif().fpv(), lower_x.dif().fpv());
-      bool recompute_c_x = c_x.dif().ulp() > ULPS;
-      bool recompute_c_y = c_y.dif().ulp() > ULPS;
-      bool recompute_lower_x = lower_x.dif().ulp() > ULPS;
+      bool recompute_c_x = c_x.dif().ulp() > ULPS || isnan(c_x.dif().ulp());
+      bool recompute_c_y = c_y.dif().ulp() > ULPS || isnan(c_y.dif().ulp());
+      bool recompute_lower_x = lower_x.dif().ulp() > ULPS || isnan(lower_x.dif().ulp());
       if (recompute_c_x || recompute_c_y || recompute_lower_x) {
         exact_circle_formation_functor_.pps(
             site1, site2, site3, segment_index, c_event,
@@ -1211,9 +1211,9 @@ class voronoi_predicates {
         } else {
           lower_x += robust_fpt_type(to_fpt(0.5)) * c / a.sqrt();
         }
-        recompute_c_x = c_x.dif().ulp() > ULPS;
-        recompute_c_y = c_y.dif().ulp() > ULPS;
-        recompute_lower_x = lower_x.dif().ulp() > ULPS;
+        recompute_c_x = c_x.dif().ulp() > ULPS || isnan(c_x.dif().ulp());
+        recompute_c_y = c_y.dif().ulp() > ULPS || isnan(c_y.dif().ulp());
+        recompute_lower_x = lower_x.dif().ulp() > ULPS || isnan(lower_x.dif().ulp());
         c_event =
             circle_type(c_x.dif().fpv(), c_y.dif().fpv(), lower_x.dif().fpv());
       } else {
@@ -1313,9 +1313,9 @@ class voronoi_predicates {
         } else {
           lower_x += t * orientation;
         }
-        recompute_c_x = c_x.dif().ulp() > ULPS;
-        recompute_c_y = c_y.dif().ulp() > ULPS;
-        recompute_lower_x = lower_x.dif().ulp() > ULPS;
+        recompute_c_x = c_x.dif().ulp() > ULPS || isnan(c_x.dif().ulp());
+        recompute_c_y = c_y.dif().ulp() > ULPS || isnan(c_y.dif().ulp());
+        recompute_lower_x = lower_x.dif().ulp() > ULPS || isnan(lower_x.dif().ulp());
         c_event = circle_type(
             c_x.dif().fpv(), c_y.dif().fpv(), lower_x.dif().fpv());
       }
@@ -1414,9 +1414,9 @@ class voronoi_predicates {
       robust_fpt_type c_y_dif = c_y.dif() / denom_dif;
       robust_fpt_type lower_x_dif = lower_x.dif() / denom_dif;
 
-      bool recompute_c_x = c_x_dif.ulp() > ULPS;
-      bool recompute_c_y = c_y_dif.ulp() > ULPS;
-      bool recompute_lower_x = lower_x_dif.ulp() > ULPS;
+      bool recompute_c_x = c_x_dif.ulp() > ULPS || isnan(c_x_dif.ulp());
+      bool recompute_c_y = c_y_dif.ulp() > ULPS || isnan(c_y_dif.ulp());
+      bool recompute_lower_x = lower_x_dif.ulp() > ULPS || isnan(lower_x_dif.ulp());
       c_event = circle_type(c_x_dif.fpv(), c_y_dif.fpv(), lower_x_dif.fpv());
       if (recompute_c_x || recompute_c_y || recompute_lower_x) {
         exact_circle_formation_functor_.sss(
