@@ -1136,6 +1136,14 @@ class voronoi_predicates {
              const site_type& site3,
              int point_index,
              circle_type& c_event) {
+      if (((site1.point0() == site2.point0()) || (site1.point0() == site2.point1())) &&
+          ((site1.point0() == site3.point0()) || (site1.point0() == site3.point1()))) {
+          
+        // we alreay know the exact location of the event, no need to re-calculate it
+        c_event = circle_type(to_fpt(site1.point0().x()), to_fpt(site1.point0().y()),
+                              to_fpt(site1.point0().x()));
+        return;
+      }
       const point_type& segm_start1 = site2.point1();
       const point_type& segm_end1 = site2.point0();
       const point_type& segm_start2 = site3.point0();
