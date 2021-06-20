@@ -179,6 +179,11 @@ class GLWidget : public QGLWidget {
       return;
     }
     edge->color(EXTERNAL_COLOR);
+    if (edge->vertex1() == NULL && edge->vertex0() != NULL) {
+      // This edge leads to nowhere
+      // It's important to *not* color twin in this case
+      return;
+    }
     edge->twin()->color(EXTERNAL_COLOR);
     const VD::vertex_type* v = edge->vertex1();
     if (v == NULL || !edge->is_primary()) {
