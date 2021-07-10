@@ -532,34 +532,34 @@ class voronoi_predicates {
     typedef robust_sqrt_expr<big_int_type, efpt_type, to_efpt_converter>
         robust_sqrt_expr_type;
 
-    void ppp(const site_type& site1,
-             const site_type& site2,
-             const site_type& site3,
+    void ppp(const point_type& point1,
+             const point_type& point2,
+             const point_type& point3,
              circle_type& circle,
              bool recompute_c_x = true,
              bool recompute_c_y = true,
              bool recompute_lower_x = true) {
       big_int_type dif_x[3], dif_y[3], sum_x[2], sum_y[2];
-      dif_x[0] = static_cast<int_x2_type>(site1.x()) -
-                 static_cast<int_x2_type>(site2.x());
-      dif_x[1] = static_cast<int_x2_type>(site2.x()) -
-                 static_cast<int_x2_type>(site3.x());
-      dif_x[2] = static_cast<int_x2_type>(site1.x()) -
-                 static_cast<int_x2_type>(site3.x());
-      dif_y[0] = static_cast<int_x2_type>(site1.y()) -
-                 static_cast<int_x2_type>(site2.y());
-      dif_y[1] = static_cast<int_x2_type>(site2.y()) -
-                 static_cast<int_x2_type>(site3.y());
-      dif_y[2] = static_cast<int_x2_type>(site1.y()) -
-                 static_cast<int_x2_type>(site3.y());
-      sum_x[0] = static_cast<int_x2_type>(site1.x()) +
-                 static_cast<int_x2_type>(site2.x());
-      sum_x[1] = static_cast<int_x2_type>(site2.x()) +
-                 static_cast<int_x2_type>(site3.x());
-      sum_y[0] = static_cast<int_x2_type>(site1.y()) +
-                 static_cast<int_x2_type>(site2.y());
-      sum_y[1] = static_cast<int_x2_type>(site2.y()) +
-                 static_cast<int_x2_type>(site3.y());
+      dif_x[0] = static_cast<int_x2_type>(point1.x()) -
+                 static_cast<int_x2_type>(point2.x());
+      dif_x[1] = static_cast<int_x2_type>(point2.x()) -
+                 static_cast<int_x2_type>(point3.x());
+      dif_x[2] = static_cast<int_x2_type>(point1.x()) -
+                 static_cast<int_x2_type>(point3.x());
+      dif_y[0] = static_cast<int_x2_type>(point1.y()) -
+                 static_cast<int_x2_type>(point2.y());
+      dif_y[1] = static_cast<int_x2_type>(point2.y()) -
+                 static_cast<int_x2_type>(point3.y());
+      dif_y[2] = static_cast<int_x2_type>(point1.y()) -
+                 static_cast<int_x2_type>(point3.y());
+      sum_x[0] = static_cast<int_x2_type>(point1.x()) +
+                 static_cast<int_x2_type>(point2.x());
+      sum_x[1] = static_cast<int_x2_type>(point2.x()) +
+                 static_cast<int_x2_type>(point3.x());
+      sum_y[0] = static_cast<int_x2_type>(point1.y()) +
+                 static_cast<int_x2_type>(point2.y());
+      sum_y[1] = static_cast<int_x2_type>(point2.y()) +
+                 static_cast<int_x2_type>(point3.y());
       fpt_type inv_denom = to_fpt(0.5) / to_fpt(static_cast<big_int_type>(
           dif_x[0] * dif_y[1] - dif_x[1] * dif_y[0]));
       big_int_type numer1 = dif_x[0] * sum_x[0] + dif_y[0] * sum_y[0];
@@ -992,30 +992,30 @@ class voronoi_predicates {
     typedef mp_circle_formation_functor<site_type, circle_type>
         exact_circle_formation_functor_type;
 
-    void ppp(const site_type& site1,
-             const site_type& site2,
-             const site_type& site3,
+    void ppp(const point_type& point1,
+             const point_type& point2,
+             const point_type& point3,
              circle_type& c_event) {
-      fpt_type dif_x1 = to_fpt(site1.x()) - to_fpt(site2.x());
-      fpt_type dif_x2 = to_fpt(site2.x()) - to_fpt(site3.x());
-      fpt_type dif_y1 = to_fpt(site1.y()) - to_fpt(site2.y());
-      fpt_type dif_y2 = to_fpt(site2.y()) - to_fpt(site3.y());
+      fpt_type dif_x1 = to_fpt(point1.x()) - to_fpt(point2.x());
+      fpt_type dif_x2 = to_fpt(point2.x()) - to_fpt(point3.x());
+      fpt_type dif_y1 = to_fpt(point1.y()) - to_fpt(point2.y());
+      fpt_type dif_y2 = to_fpt(point2.y()) - to_fpt(point3.y());
       fpt_type orientation = robust_cross_product(
-          static_cast<int_x2_type>(site1.x()) -
-          static_cast<int_x2_type>(site2.x()),
-          static_cast<int_x2_type>(site2.x()) -
-          static_cast<int_x2_type>(site3.x()),
-          static_cast<int_x2_type>(site1.y()) -
-          static_cast<int_x2_type>(site2.y()),
-          static_cast<int_x2_type>(site2.y()) -
-          static_cast<int_x2_type>(site3.y()));
+          static_cast<int_x2_type>(point1.x()) -
+          static_cast<int_x2_type>(point2.x()),
+          static_cast<int_x2_type>(point2.x()) -
+          static_cast<int_x2_type>(point3.x()),
+          static_cast<int_x2_type>(point1.y()) -
+          static_cast<int_x2_type>(point2.y()),
+          static_cast<int_x2_type>(point2.y()) -
+          static_cast<int_x2_type>(point3.y()));
       robust_fpt_type inv_orientation(to_fpt(0.5) / orientation, to_fpt(2.0));
-      fpt_type sum_x1 = to_fpt(site1.x()) + to_fpt(site2.x());
-      fpt_type sum_x2 = to_fpt(site2.x()) + to_fpt(site3.x());
-      fpt_type sum_y1 = to_fpt(site1.y()) + to_fpt(site2.y());
-      fpt_type sum_y2 = to_fpt(site2.y()) + to_fpt(site3.y());
-      fpt_type dif_x3 = to_fpt(site1.x()) - to_fpt(site3.x());
-      fpt_type dif_y3 = to_fpt(site1.y()) - to_fpt(site3.y());
+      fpt_type sum_x1 = to_fpt(point1.x()) + to_fpt(point2.x());
+      fpt_type sum_x2 = to_fpt(point2.x()) + to_fpt(point3.x());
+      fpt_type sum_y1 = to_fpt(point1.y()) + to_fpt(point2.y());
+      fpt_type sum_y2 = to_fpt(point2.y()) + to_fpt(point3.y());
+      fpt_type dif_x3 = to_fpt(point1.x()) - to_fpt(point3.x());
+      fpt_type dif_y3 = to_fpt(point1.y()) - to_fpt(point3.y());
       robust_dif_type c_x, c_y;
       c_x += robust_fpt_type(dif_x1 * sum_x1 * dif_y2, to_fpt(2.0));
       c_x += robust_fpt_type(dif_y1 * sum_y1 * dif_y2, to_fpt(2.0));
@@ -1039,7 +1039,7 @@ class voronoi_predicates {
       bool recompute_lower_x = lower_x.dif().ulp() > ULPS;
       if (recompute_c_x || recompute_c_y || recompute_lower_x) {
         exact_circle_formation_functor_.ppp(
-            site1, site2, site3, c_event,
+            point1, point2, point3, c_event,
             recompute_c_x, recompute_c_y, recompute_lower_x);
       }
     }
@@ -1128,6 +1128,29 @@ class voronoi_predicates {
         exact_circle_formation_functor_.pps(
             site1, site2, site3, segment_index, c_event,
             recompute_c_x, recompute_c_y, recompute_lower_x);
+      }
+      // ppp will return NaN if not all points are unique
+      bool unique_endpoints = !(site3.point0() == site1.point0() || site3.point0() == site2.point0() ||
+                                site3.point1() == site1.point0() || site3.point1() == site2.point0());
+      if (unique_endpoints) {
+        // site3.point0 -> c
+        fpt_type v0c[2] = {c_event.x() - to_fpt(site3.point0().x()), c_event.y() - to_fpt(site3.point0().y())};
+        // site3.point0 -> site3.point1
+        fpt_type v01[2] = {to_fpt(site3.point1().x()) - to_fpt(site3.point0().x()),
+                           to_fpt(site3.point1().y()) - to_fpt(site3.point0().y())};
+        fpt_type dot = (v0c[0]*v01[0] + v0c[1]*v01[1])/(v01[0] * v01[0] + v01[1] * v01[1]);
+        if (dot > 1.0 || dot < 0.0) {
+          // The circle event intersects the infinite line site3, but is out of range of the segment.
+          // Recalculate with ppp()
+          point_type point3 = dot<0.0?site3.point0():site3.point1();
+          if (segment_index == 1) {
+            ppp(point3, site1.point0(), site2.point0(), c_event);
+          } else if (segment_index == 2) {
+            ppp(site1.point0(), point3, site2.point0(), c_event);
+          } else if (segment_index == 3) {
+            ppp(site1.point0(), site2.point0(), point3, c_event);
+          }
+        }
       }
     }
 
@@ -1452,7 +1475,7 @@ class voronoi_predicates {
             // (point, point, point) sites.
             if (!circle_existence_predicate_.ppp(site1, site2, site3))
               return false;
-            circle_formation_functor_.ppp(site1, site2, site3, circle);
+            circle_formation_functor_.ppp(site1.point0(), site2.point0(), site3.point0(), circle);
           } else {
             // (point, point, segment) sites.
             if (!circle_existence_predicate_.pps(site1, site2, site3, 3))
