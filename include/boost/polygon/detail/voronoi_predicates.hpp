@@ -1129,19 +1129,20 @@ class voronoi_predicates {
             site1, site2, site3, segment_index, c_event,
             recompute_c_x, recompute_c_y, recompute_lower_x);
       }
-      // ppp will return NaN if not all points are unique
+      // All points needs to be unique or ppp() will return NaN
       bool unique_endpoints = !(site3.point0() == site1.point0() || site3.point0() == site2.point0() ||
-                                site3.point1() == site1.point0() || site3.point1() == site2.point0());
+                                site3.point1() == site1.point0() || site3.point1() == site2.point0() ||
+                                site1.point0() == site2.point0() );
       if (unique_endpoints) {
-        // site3.point0 -> c
+        // Vector: site3.point0 -> CE
         fpt_type v0c[2] = {c_event.x() - to_fpt(site3.point0().x()), c_event.y() - to_fpt(site3.point0().y())};
-        // site3.point0 -> site3.point1
+        // Vector: site3.point0 -> site3.point1
         fpt_type v01[2] = {to_fpt(site3.point1().x()) - to_fpt(site3.point0().x()),
                            to_fpt(site3.point1().y()) - to_fpt(site3.point0().y())};
         fpt_type dot = (v0c[0]*v01[0] + v0c[1]*v01[1])/(v01[0] * v01[0] + v01[1] * v01[1]);
         if (dot > 1.0 || dot < 0.0) {
           // The circle event intersects the infinite line site3, but is out of range of the segment.
-          // Recalculate with ppp()
+          // Recalculate the CE using ppp()
           point_type point3 = dot<0.0?site3.point0():site3.point1();
           if (segment_index == 1) {
             ppp(point3, site1.point0(), site2.point0(), c_event);
