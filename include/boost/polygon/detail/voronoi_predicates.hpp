@@ -1143,7 +1143,7 @@ class voronoi_predicates {
         if (dot > 1.0 || dot < 0.0) {
           // The circle event intersects the infinite line site3, but is out of range of the segment.
           // Recalculate the CE using ppp()
-          point_type point3 = dot<0.0?site3.point0():site3.point1();
+          const point_type& point3 = dot<0.0?site3.point0():site3.point1();
           if (segment_index == 1) {
             ppp(point3, site1.point0(), site2.point0(), c_event);
           } else if (segment_index == 2) {
