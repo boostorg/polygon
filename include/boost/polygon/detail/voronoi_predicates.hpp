@@ -1044,7 +1044,7 @@ class voronoi_predicates {
       }
     }
 
-    void pps(const site_type& site1,
+    bool pps(const site_type& site1,
              const site_type& site2,
              const site_type& site3,
              int segment_index,
@@ -1129,6 +1129,27 @@ class voronoi_predicates {
             site1, site2, site3, segment_index, c_event,
             recompute_c_x, recompute_c_y, recompute_lower_x);
       }
+      // All points needs to be unique or the dot product calculation will not be valid
+      bool unique_endpoints = !(site1.point0() == site2.point0() ||
+                                site3.point0() == site1.point0() ||
+                                site3.point0() == site2.point0() ||
+                                site3.point1() == site1.point0() ||
+                                site3.point1() == site2.point0() ||
+                                site3.point0() == site3.point1());
+      if (unique_endpoints) {
+        // Vector: site3.point0 -> CE
+        fpt_type v0c[2] = {c_event.x() - to_fpt(site3.point0().x()), c_event.y() - to_fpt(site3.point0().y())};
+        // Vector: site3.point0 -> site3.point1
+        fpt_type v01[2] = {to_fpt(site3.point1().x()) - to_fpt(site3.point0().x()),
+                           to_fpt(site3.point1().y()) - to_fpt(site3.point0().y())};
+        fpt_type dot = (v0c[0]*v01[0] + v0c[1]*v01[1])/(v01[0] * v01[0] + v01[1] * v01[1]);
+        if (ulp_cmp(dot, 0.0, ULPS) == ulp_cmp_type::LESS || ulp_cmp(dot, 1.0, ULPS) == ulp_cmp_type::MORE) {
+          // The circle event intersects the infinite line site3, but is out of range of the segment.
+          // Report the circle event as "not found"
+          return false;
+        }
+      }
+      return true;
     }
 
     void pss(const site_type& site1,
@@ -1428,6 +1449,7 @@ class voronoi_predicates {
    private:
     exact_circle_formation_functor_type exact_circle_formation_functor_;
     to_fpt_converter to_fpt;
+    ulp_cmp_type ulp_cmp;
   };
 
   template <typename Site,
@@ -1457,14 +1479,16 @@ class voronoi_predicates {
             // (point, point, segment) sites.
             if (!circle_existence_predicate_.pps(site1, site2, site3, 3))
               return false;
-            circle_formation_functor_.pps(site1, site2, site3, 3, circle);
+            if (!circle_formation_functor_.pps(site1, site2, site3, 3, circle))
+              return false;
           }
         } else {
           if (!site3.is_segment()) {
             // (point, segment, point) sites.
             if (!circle_existence_predicate_.pps(site1, site3, site2, 2))
               return false;
-            circle_formation_functor_.pps(site1, site3, site2, 2, circle);
+            if (!circle_formation_functor_.pps(site1, site3, site2, 2, circle))
+              return false;
           } else {
             // (point, segment, segment) sites.
             if (!circle_existence_predicate_.pss(site1, site2, site3, 1))
@@ -1478,7 +1502,8 @@ class voronoi_predicates {
             // (segment, point, point) sites.
             if (!circle_existence_predicate_.pps(site2, site3, site1, 1))
               return false;
-            circle_formation_functor_.pps(site2, site3, site1, 1, circle);
+            if (!circle_formation_functor_.pps(site2, site3, site1, 1, circle))
+              return false;
           } else {
             // (segment, point, segment) sites.
             if (!circle_existence_predicate_.pss(site2, site1, site3, 2))
