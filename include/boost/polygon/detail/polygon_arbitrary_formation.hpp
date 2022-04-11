@@ -2175,8 +2175,8 @@ namespace boost { namespace polygon{
         itr_ = that.itr_;
         return *this;
       }
-      inline bool operator==(const iterator_holes_type& that) { return itr_ == that.itr_; }
-      inline bool operator!=(const iterator_holes_type& that) { return itr_ != that.itr_; }
+      inline bool operator==(const iterator_holes_type& that) const { return itr_ == that.itr_; }
+      inline bool operator!=(const iterator_holes_type& that) const { return itr_ != that.itr_; }
       inline iterator_holes_type& operator++() {
         ++itr_;
         return *this;
