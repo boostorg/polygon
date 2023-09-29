@@ -387,9 +387,7 @@ namespace polygon_formation {
         size_t count = 0;
         End dir = startEnd_;
         PolyLine<Unit> const * currLine = pLine_;
-        size_t ops = 0;
         while(currLine != pLineEnd_){
-           ops++;
            count += currLine->numSegments();
            currLine = currLine->next(dir == HEAD ? TAIL : HEAD);
            dir = currLine->endConnectivity(dir == HEAD ? TAIL : HEAD);
