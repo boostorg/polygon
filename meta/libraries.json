@@ -14,5 +14,6 @@
     "maintainers": [
         "Lucanus Simonson <lucanus.j.simonson -at- intel.com>",
         "Andrii Sydorchuk <sydorchuk.andriy -at- gmail.com>"
-    ]
+    ],
+    "cxxstd": "03"
 }
