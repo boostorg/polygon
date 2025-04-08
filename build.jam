@@ -9,16 +9,14 @@ constant boost_dependencies :
     /boost/config//boost_config ;
 
 project /boost/polygon
-    : common-requirements
-        <include>include
     ;
 
 explicit
-    [ alias boost_polygon : : : : <library>$(boost_dependencies) ]
+    [ alias boost_polygon : : :
+        : <include>include <library>$(boost_dependencies) ]
     [ alias all : boost_polygon test ]
     ;
 
 call-if
     : boost-library polygon
     ;
-
