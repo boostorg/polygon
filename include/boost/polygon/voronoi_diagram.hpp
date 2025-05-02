@@ -298,6 +298,11 @@ class voronoi_diagram {
 
   voronoi_diagram() {}
 
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS)
+  voronoi_diagram(voronoi_diagram&&) = default;
+  voronoi_diagram& operator=(voronoi_diagram&&) = default;
+#endif
+
   void clear() {
     cells_.clear();
     vertices_.clear();
