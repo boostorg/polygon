@@ -89,7 +89,7 @@ class axis_transformation {
   explicit axis_transformation(ATR atr) : atr_(atr) {}
   axis_transformation(const axis_transformation& atr) : atr_(atr.atr_) {}
 
-  explicit axis_transformation(const orientation_2d& orient) {
+  explicit axis_transformation(const orientation_2d& orient) : atr_(NULL_TRANSFORM) {
     const ATR tmp[2] = {
       NORTH_EAST,  // sort x, then y
       EAST_NORTH   // sort y, then x
@@ -97,7 +97,7 @@ class axis_transformation {
     atr_ = tmp[orient.to_int()];
   }
 
-  explicit axis_transformation(const direction_2d& dir) {
+  explicit axis_transformation(const direction_2d& dir) : atr_(NULL_TRANSFORM) {
     const ATR tmp[4] = {
       SOUTH_EAST,  // sort x, then y
       NORTH_EAST,  // sort x, then y
