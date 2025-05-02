@@ -190,8 +190,7 @@ namespace boost { namespace polygon{
       typename is_rectangle_concept<typename geometry_concept<rectangle_type_2>::type>::type>::type,
     rectangle_type_1>::type &
   assign(rectangle_type_1& lvalue, const rectangle_type_2& rvalue) {
-    set(lvalue, HORIZONTAL, get(rvalue, HORIZONTAL));
-    set(lvalue, VERTICAL, get(rvalue, VERTICAL));
+    lvalue = copy_construct<rectangle_type_1>(rvalue);
     return lvalue;
   }
 
