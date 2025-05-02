@@ -18,14 +18,16 @@
 #define BOOST_TEST_MODULE benchmark_test
 #include <boost/mpl/list.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/test/test_case_template.hpp>
-#include <boost/timer.hpp>
+#include <boost/test/unit_test.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <boost/polygon/polygon.hpp>
 #include <boost/polygon/voronoi.hpp>
 using boost::polygon::point_data;
 using boost::polygon::segment_data;
 using boost::polygon::voronoi_diagram;
+using boost::timer::cpu_times;
+using boost::timer::nanosecond_type;
 
 typedef boost::mpl::list<int> test_types;
 const char *BENCHMARK_FILE = "voronoi_benchmark.txt";
@@ -35,7 +37,13 @@ const int POINT_RUNS = 10;
 const int SEGMENT_RUNS = 10;
 
 boost::mt19937 gen(static_cast<unsigned int>(time(NULL)));
-boost::timer timer;
+boost::timer::cpu_timer timer;
+
+double get_elapsed_secs() {
+  cpu_times elapsed_times(timer.elapsed());
+  return 1E-9 * static_cast<double>(
+      elapsed_times.system + elapsed_times.user);
+}
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(benchmark_test_random, T, test_types) {
     typedef T coordinate_type;
@@ -46,12 +54,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(benchmark_test_random, T, test_types) {
     bench_file << "Voronoi Benchmark Test (time in seconds):" << std::endl;
     bench_file << "| Number of points | Number of tests | Time per one test |" << std::endl;
     bench_file << std::setiosflags(std::ios::right | std::ios::fixed) << std::setprecision(6);
-    int max_points = 100000;
+    int max_points = 1000000;
     std::vector<point_type> points;
     coordinate_type x, y;
     for (int num_points = 10; num_points <= max_points; num_points *= 10) {
         points.resize(num_points);
-        timer.restart();
+        timer.start();
         int num_tests = max_points / num_points;
         for (int cur = 0; cur < num_tests; cur++) {
             test_output.clear();
@@ -62,7 +70,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(benchmark_test_random, T, test_types) {
             }
             construct_voronoi(points.begin(), points.end(), &test_output);
         }
-        double elapsed_time = timer.elapsed();
+        double elapsed_time = get_elapsed_secs();
         double time_per_test = elapsed_time / num_tests;
 
         bench_file << "| " << std::setw(16) << num_points << " ";
@@ -95,9 +103,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(benchmark_test_points, T, test_types) {
     {
         for (int i = 0; i < POINT_RUNS; ++i) {
             voronoi_diagram<double> test_output;
-            timer.restart();
+            timer.start();
             construct_voronoi(points.begin(), points.end(), &test_output);
-            periods.push_back(timer.elapsed());
+            periods.push_back(get_elapsed_secs());
         }
     }
     std::sort(periods.begin(), periods.end());
@@ -137,9 +145,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(benchmark_test_segments, T, test_types) {
     {
         for (int i = 0; i < SEGMENT_RUNS; ++i) {
             voronoi_diagram<double> test_output;
-            timer.restart();
+            timer.start();
             construct_voronoi(segments.begin(), segments.end(), &test_output);
-            periods.push_back(timer.elapsed());
+            periods.push_back(get_elapsed_secs());
         }
     }
     std::sort(periods.begin(), periods.end());
