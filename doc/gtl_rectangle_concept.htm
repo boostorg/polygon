@@ -609,7 +609,7 @@ only along a side or corner.</td>
 bool <b>abuts</b>(const T1&amp; a, const T2&amp; b,<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 direction_2d dir) </font></td>
-            <td>Returns true if rectangle b abuts but down not overlap
+            <td>Returns true if rectangle b abuts but does not overlap
 rectangle a on the side of rectangle a specified by dir.</td>
           </tr>
           <tr>
@@ -618,7 +618,7 @@ rectangle a on the side of rectangle a specified by dir.</td>
 bool <b>abuts</b>(const T1&amp; a, const T2&amp; b,<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 orientation_2d) </font></td>
-            <td>Returns true if rectangle b abuts but down not overlap
+            <td>Returns true if rectangle b abuts but does not overlap
 rectangle a on either side of rectangle a specified by the
 orientation_2d.</td>
           </tr>
@@ -626,7 +626,7 @@ orientation_2d.</td>
             <td width="586"><font face="Courier New">template
 &lt;typename T1, typename T2&gt;<br />
 bool <b>abuts</b>(const T1&amp; a, const T2&amp; b)</font></td>
-            <td>Returns true if rectangle b abuts but down not overlap
+            <td>Returns true if rectangle b abuts but does not overlap
 rectangle a on any side.</td>
           </tr>
           <tr>
@@ -636,8 +636,8 @@ bool <b>intersect</b>(T1&amp; a, const T2&amp; b, orientation_2d<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 bool consider_touch = true) </font></td>
             <td>Sets rectangle a to the intersection of rectangle a and
-interval b along the orientation_2d and returns true.&nbsp; If the does
-not intersect the interval, the rectangle is unchanged and the function
+interval b along the orientation_2d and returns true.&nbsp; If the rectangle
+does not intersect the interval, the rectangle is unchanged and the function
 returns false.&nbsp; If the flag consider_touch is true intervals that
 abut are considered to intersect.</td>
           </tr>
