@@ -8,6 +8,18 @@
 
 import testing ;
 
+project
+    : requirements
+        <library>/boost/core//boost_core
+        <library>/boost/random//boost_random
+
+        <warnings>all
+        <toolset>intel:<warnings>on
+        <toolset>intel-win:<cxxflags>"/bigobj"
+        <toolset>gcc:<cxxflags>"-pedantic -Wall -Wstrict-aliasing -fstrict-aliasing -Wno-long-long"
+        <toolset>msvc:<cxxflags>"/W4 /bigobj"
+    ;
+
 run polygon_point_test.cpp ;
 run polygon_segment_test.cpp ;
 run polygon_interval_test.cpp ;
