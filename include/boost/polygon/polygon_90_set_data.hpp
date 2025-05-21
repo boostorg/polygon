@@ -788,6 +788,7 @@ namespace boost { namespace polygon{
 
     inline polygon_90_set_data& interact(const polygon_90_set_data& that) {
       typedef coordinate_type Unit;
+      if(dirty_) clean();
       if(that.dirty_) that.clean();
       typename touch_90_operation<Unit>::TouchSetData tsd;
       touch_90_operation<Unit>::populateTouchSetData(tsd, that.data_, 0);
