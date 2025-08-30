@@ -9,6 +9,8 @@
 #define BOOST_POLYGON_POLYGON_HPP
 #define BOOST_POLYGON_VERSION 014401
 
+// IWYU pragma: begin_exports
+
 #include "isotropy.hpp"
 
 //point
@@ -88,5 +90,7 @@
 #include "polygon_set_concept.hpp"
 
 #include "segment_utils.hpp"
+
+// IWYU pragma: end_exports
 
 #endif
